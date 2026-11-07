@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#090a0d">
+  <title>Một khoảnh khắc dành riêng cho bạn</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: "Segoe UI", Arial, sans-serif;
+      --gold: #f0d7a1;
+      --muted: #a7a5a0;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-width: 320px;
+      min-height: 100vh;
+      min-height: 100svh;
+      margin: 0;
+      overflow: hidden;
+      color: #fff;
+      background:
+        radial-gradient(ellipse at 50% 53%, rgba(116, 87, 52, .2), transparent 34rem),
+        radial-gradient(ellipse at 50% 110%, rgba(68, 80, 104, .2), transparent 42rem),
+        #090a0d;
+    }
+
+    button { font: inherit; }
+
+    .scene {
+      position: relative;
+      display: grid;
+      min-height: 100vh;
+      min-height: 100svh;
+      overflow: hidden;
+      place-items: center;
+      isolation: isolate;
+    }
+
+    .scene::before,
+    .scene::after {
+      position: absolute;
+      z-index: -1;
+      content: "";
+      pointer-events: none;
+    }
+
+    .scene::before {
+      inset: -35%;
+      opacity: .46;
+      background: conic-gradient(
+        from 205deg at 50% 50%,
+        transparent 0deg,
+        rgba(218, 183, 125, .08) 24deg,
+        transparent 54deg,
+        transparent 145deg,
+        rgba(161, 181, 207, .07) 173deg,
+        transparent 205deg,
+        transparent 360deg
+      );
+      animation: slow-turn 48s linear infinite;
+    }
+
+    .scene::after {
+      inset: 0;
+      opacity: .24;
+      background-image: radial-gradient(rgba(255,255,255,.62) .7px, transparent .9px);
+      background-size: 53px 53px;
+      mask-image: linear-gradient(transparent, #000 27%, #000 75%, transparent);
+    }
+
+    .vignette {
+      position: absolute;
+      z-index: -1;
+      inset: 0;
+      background: radial-gradient(ellipse at center, transparent 20%, rgba(0,0,0,.72) 100%);
+      pointer-events: none;
+    }
+
+    .content {
+      width: min(100% - 36px, 980px);
+      padding: 48px 0;
+      text-align: center;
+    }
+
+    .eyebrow {
+      margin: 0 0 24px;
+      color: var(--gold);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .34em;
+      text-transform: uppercase;
+    }
+
+    .intro {
+      animation: intro-in .9s cubic-bezier(.2,.8,.2,1) both;
+    }
+
+    .intro h1 {
+      margin: 0;
+      font-size: clamp(32px, 7vw, 66px);
+      font-weight: 500;
+      letter-spacing: .08em;
+      line-height: 1.15;
+      text-wrap: balance;
+    }
+
+    .intro-copy {
+      margin: 18px 0 30px;
+      color: var(--muted);
+      font-size: 14px;
+      letter-spacing: .12em;
+    }
+
+    .start-button,
+    .replay-button {
+      min-width: 156px;
+      min-height: 48px;
+      padding: 0 23px;
+      border: 1px solid rgba(240,215,161,.64);
+      border-radius: 999px;
+      color: #17130c;
+      background: linear-gradient(135deg, #f5e4bd, #c8a86d);
+      box-shadow: 0 0 28px rgba(218,183,125,.18);
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .19em;
+      text-transform: uppercase;
+      transition: transform .2s ease, box-shadow .2s ease;
+    }
+
+    .start-button:hover,
+    .replay-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 38px rgba(218,183,125,.34);
+    }
+
+    button:focus-visible {
+      outline: 2px solid #fff;
+      outline-offset: 5px;
+    }
+
+    .reveal {
+      display: none;
+      min-height: 250px;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .reveal.active { display: flex; }
+    .intro[hidden] { display: none; }
+
+    .name {
+      margin: 0;
+      color: transparent;
+      background: linear-gradient(180deg, #fff8e9 4%, #f0d7a1 48%, #bd9254 100%);
+      background-clip: text;
+      -webkit-background-clip: text;
+      font-size: clamp(34px, 8.5vw, 92px);
+      font-weight: 600;
+      letter-spacing: .09em;
+      line-height: 1.12;
+      opacity: 0;
+      text-shadow: 0 0 48px rgba(240,215,161,.08);
+      transform: translateY(28px) scale(.96);
+      text-wrap: balance;
+    }
+
+    .name.show { animation: name-reveal 1.5s cubic-bezier(.16,1,.3,1) forwards; }
+
+    .name::after {
+      position: absolute;
+      content: "";
+    }
+
+    .username {
+      position: relative;
+      margin: 22px 0 0;
+      color: rgba(255,255,255,.82);
+      font-size: clamp(18px, 3.8vw, 30px);
+      font-weight: 300;
+      letter-spacing: .42em;
+      opacity: 0;
+      transform: translateY(12px);
+    }
+
+    .username.show { animation: username-reveal 1.2s cubic-bezier(.2,.8,.2,1) forwards; }
+
+    .username::before,
+    .username::after {
+      display: inline-block;
+      width: clamp(24px, 7vw, 72px);
+      height: 1px;
+      margin: 0 clamp(10px, 2.5vw, 24px) .35em;
+      background: linear-gradient(90deg, transparent, rgba(240,215,161,.72));
+      content: "";
+      vertical-align: middle;
+    }
+
+    .username::after { transform: rotate(180deg); }
+
+    .replay-button {
+      min-height: 40px;
+      margin-top: 40px;
+      border-color: rgba(255,255,255,.28);
+      color: #eee8dd;
+      background: rgba(255,255,255,.055);
+      box-shadow: none;
+      opacity: 0;
+    }
+
+    .replay-button.show { animation: fade-in .7s ease forwards; }
+
+    .skip-button {
+      position: fixed;
+      right: 20px;
+      bottom: 18px;
+      padding: 10px 12px;
+      border: 0;
+      color: rgba(255,255,255,.56);
+      background: transparent;
+      cursor: pointer;
+      font-size: 11px;
+      letter-spacing: .08em;
+    }
+
+    .skip-button:hover { color: #fff; }
+    .skip-button[hidden] { display: none; }
+
+    @keyframes slow-turn { to { transform: rotate(360deg); } }
+    @keyframes intro-in {
+      from { opacity: 0; transform: translateY(14px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes name-reveal {
+      0% { opacity: 0; filter: blur(12px); letter-spacing: .22em; transform: translateY(28px) scale(.96); }
+      60% { opacity: 1; filter: blur(0); }
+      100% { opacity: 1; filter: blur(0); letter-spacing: .09em; transform: translateY(0) scale(1); }
+    }
+    @keyframes username-reveal {
+      0% { opacity: 0; filter: blur(8px); letter-spacing: .72em; transform: translateY(12px); }
+      100% { opacity: .88; filter: blur(0); letter-spacing: .42em; transform: translateY(0); }
+    }
+    @keyframes fade-in {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 520px) {
+      .eyebrow { font-size: 9px; letter-spacing: .24em; }
+      .intro-copy { font-size: 12px; letter-spacing: .07em; }
+      .username { letter-spacing: .27em; }
+      .username.show { animation-name: username-reveal-mobile; }
+      .skip-button { right: 12px; bottom: 10px; }
+    }
+
+    @keyframes username-reveal-mobile {
+      0% { opacity: 0; filter: blur(8px); letter-spacing: .52em; transform: translateY(12px); }
+      100% { opacity: .88; filter: blur(0); letter-spacing: .27em; transform: translateY(0); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        scroll-behavior: auto !important;
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="scene">
+    <div class="vignette" aria-hidden="true"></div>
+    <div class="content">
+      <section class="intro" id="intro">
+        <p class="eyebrow">Một khoảnh khắc dành riêng cho bạn</p>
+        <h1>Sẵn sàng chưa?</h1>
+        <p class="intro-copy">Nhấn bắt đầu để mở ra điều đặc biệt.</p>
+        <button class="start-button" id="startButton" type="button">Bắt đầu</button>
+      </section>
+      <section class="reveal" id="reveal" aria-live="polite" aria-atomic="true" aria-label="Lời chào">
+        <h2 class="name" id="nameText">NGUYỄN KIM ANH</h2>
+        <p class="username" id="usernameText">chanbomaydi</p>
+        <button class="replay-button" id="replayButton" type="button">Phát lại</button>
+      </section>
+    </div>
+    <button class="skip-button" id="skipButton" type="button" hidden>Bỏ qua hiệu ứng</button>
+  </main>
+  <script>
+    const intro = document.getElementById("intro");
+    const reveal = document.getElementById("reveal");
+    const nameText = document.getElementById("nameText");
+    const usernameText = document.getElementById("usernameText");
+    const startButton = document.getElementById("startButton");
+    const replayButton = document.getElementById("replayButton");
+    const skipButton = document.getElementById("skipButton");
+    let revealTimer;
+    let finishTimer;
+
+    function clearRevealTimers() {
+      window.clearTimeout(revealTimer);
+      window.clearTimeout(finishTimer);
+    }
+
+    function finishReveal() {
+      clearRevealTimers();
+      nameText.classList.add("show");
+      usernameText.classList.add("show");
+      replayButton.classList.add("show");
+      skipButton.hidden = true;
+    }
+
+    function startReveal() {
+      clearRevealTimers();
+      intro.hidden = true;
+      reveal.classList.add("active");
+      nameText.classList.remove("show");
+      usernameText.classList.remove("show");
+      replayButton.classList.remove("show");
+      skipButton.hidden = false;
+
+      requestAnimationFrame(() => {
+        nameText.classList.add("show");
+        revealTimer = window.setTimeout(() => {
+          usernameText.classList.add("show");
+        }, 1550);
+        finishTimer = window.setTimeout(() => {
+          replayButton.classList.add("show");
+          skipButton.hidden = true;
+        }, 2600);
+      });
+    }
+
+    startButton.addEventListener("click", startReveal);
+    replayButton.addEventListener("click", startReveal);
+    skipButton.addEventListener("click", finishReveal);
+  </script>
+</body>
+</html>

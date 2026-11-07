@@ -1,0 +1,1859 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#101712">
+  <title>nongsanviet — Đầu tư nông sản</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101712;
+      --panel: #17211a;
+      --panel-soft: #1d2920;
+      --border: rgba(224, 238, 216, .09);
+      --muted: #9aa79a;
+      --text: #f0f3e9;
+      --lime: #c5ee81;
+      --lime-dark: #91bb4f;
+      --orange: #e4a866;
+      --radius: 20px;
+      font-family: "DM Sans", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-width: 320px;
+      background:
+        radial-gradient(ellipse at 86% 0%, rgba(83, 112, 62, .14), transparent 34rem),
+        var(--bg);
+      color: var(--text);
+    }
+    button, input, select { font: inherit; }
+    button { color: inherit; }
+    .app { display: flex; min-height: 100vh; }
+    .sidebar {
+      width: 246px;
+      flex: 0 0 246px;
+      padding: 27px 17px 20px;
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid var(--border);
+      background: rgba(17, 25, 19, .8);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 0 10px;
+      color: var(--text);
+      text-decoration: none;
+      font: 800 17px Manrope, sans-serif;
+      letter-spacing: -.5px;
+    }
+    .brand-mark {
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      border-radius: 13px;
+      color: #172114;
+      background: linear-gradient(145deg, #d6f49b, #91bd54);
+      box-shadow: 0 5px 16px rgba(173, 220, 111, .16), inset 0 1px 0 #f1ffcf;
+    }
+    .brand-mark svg { width: 22px; height: 22px; }
+    .sidebar-bottom { margin-top: auto; }
+    .profile {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 7px 0;
+      border-top: 1px solid var(--border);
+    }
+    .avatar {
+      width: 36px;
+      height: 36px;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(226, 239, 209, .2);
+      border-radius: 50%;
+      color: #1a2518;
+      background: linear-gradient(140deg, #d6edac, #accc7e);
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .profile-info { min-width: 0; }
+    .profile-info strong { display: block; font-size: 11px; }
+    .profile-info span { display: block; margin-top: 3px; color: var(--muted); font-size: 10px; }
+    .support-link { display: inline-block; margin: 12px 7px 0; color: #b7ce98; font-size: 10px; text-decoration: none; }
+    .support-link:hover { color: var(--lime); text-decoration: underline; }
+    .profile-menu { margin-left: auto; color: #849084; }
+    .member-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 17px; }
+    .member-card {
+      padding: 21px;
+      border: 1px solid var(--border);
+      border-radius: 17px;
+      background: linear-gradient(145deg, rgba(31,43,33,.88), rgba(23,32,25,.72));
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.025);
+    }
+    .member-card h3 { margin: 0 0 15px; font-size: 14px; }
+    .member-detail { display: grid; gap: 5px; margin-top: 12px; }
+    .member-detail span { color: #92a08e; font-size: 10px; }
+    .member-detail strong { color: #e7f0dd; font-size: 13px; overflow-wrap: anywhere; }
+    .referral-code-row { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+    .referral-code {
+      min-width: 0;
+      flex: 1;
+      padding: 11px 12px;
+      border: 1px solid rgba(197,238,129,.18);
+      border-radius: 10px;
+      color: #d7f0b0;
+      background: rgba(197,238,129,.055);
+      font: 700 14px Manrope,sans-serif;
+      letter-spacing: 1px;
+      overflow-wrap: anywhere;
+    }
+    .referral-code-row .button { min-height: 39px; padding: 0 12px; font-size: 10px; }
+    .referral-rule { margin: 10px 0 0; color: #9ba895; font-size: 10px; line-height: 1.65; }
+    .referral-rule strong { color: var(--lime); }
+    .referral-example { margin-top: 13px; padding: 11px 12px; border: 1px solid rgba(197,238,129,.1); border-radius: 10px; color: #b7c3b0; background: rgba(197,238,129,.04); font-size: 10px; line-height: 1.6; }
+    .member-status { display: inline-flex; align-items: center; gap: 6px; margin-top: 12px; color: #e4b782; font-size: 9px; }
+    .member-status::before { width: 6px; height: 6px; border-radius: 50%; background: currentColor; content: ""; }
+
+    .main { width: min(100% - 246px, 1640px); margin: 0 auto; padding: 34px 48px 140px; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin-bottom: 36px; }
+    .breadcrumb { color: #879287; font-size: 12px; }
+    .breadcrumb strong { color: #dfe8d8; font-weight: 600; }
+    .top-actions { display: flex; align-items: center; gap: 10px; }
+    .icon-button {
+      width: 39px;
+      height: 39px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      color: #c8d2c5;
+      background: rgba(255,255,255,.025);
+      cursor: pointer;
+    }
+    .icon-button svg { width: 17px; }
+    .top-user { display: flex; align-items: center; gap: 9px; margin-left: 8px; }
+    .top-user .avatar { width: 34px; height: 34px; }
+    .top-user span { font-size: 12px; }
+    .mobile-brand { display: none; }
+    .auth-actions { display: flex; align-items: center; gap: 8px; }
+    .auth-actions[hidden] { display: none; }
+    .auth-actions .button { min-height: 32px; padding: 0 9px; font-size: 10px; }
+    .top-account-summary {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 6px 10px 6px 7px;
+      border: 1px solid rgba(197,238,129,.2);
+      border-radius: 12px;
+      color: var(--text);
+      background: rgba(197,238,129,.06);
+      cursor: pointer;
+      text-align: left;
+    }
+    .top-account-summary[hidden] { display: none; }
+    .top-account-summary .avatar { width: 31px; height: 31px; flex: 0 0 31px; }
+    .top-account-info { display: grid; gap: 3px; }
+    .top-account-info strong { max-width: 140px; overflow: hidden; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+    .top-account-info span { color: #c5ee81; font-size: 10px; }
+    .top-account-summary:hover { border-color: rgba(197,238,129,.5); background: rgba(197,238,129,.11); }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      color: var(--lime);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+    }
+    .eyebrow-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--lime); box-shadow: 0 0 10px var(--lime); }
+    h1, h2, h3, p { margin-top: 0; }
+    h1, h2, h3 { font-family: Manrope, sans-serif; }
+    h1 { margin: 12px 0 9px; font-size: clamp(32px, 4.2vw, 48px); letter-spacing: -1.7px; line-height: 1.15; }
+    .intro-copy { max-width: 510px; margin-bottom: 0; color: #9ba89b; font-size: 13px; line-height: 1.7; }
+    .hero {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      min-height: 252px;
+      overflow: hidden;
+      padding: 34px 38px;
+      border: 1px solid rgba(206, 233, 178, .14);
+      border-radius: 24px;
+      background:
+        linear-gradient(92deg, rgba(20, 33, 24, .98) 0%, rgba(24, 39, 27, .93) 46%, rgba(28, 43, 29, .57) 100%),
+        url("https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1400&q=85") center 48% / cover;
+      box-shadow: 0 20px 60px rgba(0,0,0,.2), inset 0 1px 0 rgba(255,255,255,.035);
+    }
+    .hero::after {
+      position: absolute;
+      right: -85px;
+      bottom: -180px;
+      width: 440px;
+      height: 380px;
+      border: 1px solid rgba(213, 242, 174, .1);
+      border-radius: 50%;
+      box-shadow: 0 0 0 28px rgba(213,242,174,.025), 0 0 0 58px rgba(213,242,174,.02);
+      content: "";
+      pointer-events: none;
+    }
+    .hero-content { position: relative; z-index: 1; }
+    .hero .intro-copy { max-width: 460px; }
+    .hero-actions { display: flex; gap: 10px; margin-top: 23px; }
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 42px;
+      padding: 0 16px;
+      border: 1px solid transparent;
+      border-radius: 11px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform .18s ease, filter .18s ease, background .18s ease;
+    }
+    .button:hover { transform: translateY(-2px); filter: brightness(1.07); }
+    .button svg { width: 15px; height: 15px; }
+    .button-primary {
+      color: #1b2616;
+      background: linear-gradient(145deg, #d9f4a8, #a9d46a);
+      box-shadow: 0 7px 19px rgba(176, 222, 113, .16), inset 0 1px 0 rgba(255,255,255,.55);
+    }
+    .button-outline { border-color: rgba(226,239,216,.18); color: #e4ebdf; background: rgba(255,255,255,.035); }
+    .hero-note {
+      position: relative;
+      z-index: 1;
+      width: 200px;
+      flex: 0 0 200px;
+      padding: 15px 17px;
+      border: 1px solid rgba(227, 240, 218, .14);
+      border-radius: 16px;
+      background: rgba(15, 23, 17, .45);
+      backdrop-filter: blur(12px);
+    }
+    .hero-note span { color: #b7c3b4; font-size: 10px; }
+    .hero-note strong { display: block; margin: 9px 0 5px; color: #dbf4b0; font: 700 19px Manrope, sans-serif; }
+    .hero-note small { color: #94a392; font-size: 10px; }
+    .section-heading { display: flex; align-items: end; justify-content: space-between; gap: 12px; margin: 37px 0 17px; }
+    .section-heading h2 { margin: 6px 0 0; font-size: 21px; letter-spacing: -.65px; }
+    .section-heading p { margin: 7px 0 0; color: var(--muted); font-size: 11px; }
+    .text-link { color: var(--lime); font-size: 11px; text-decoration: none; white-space: nowrap; }
+
+    .overview-grid { display: grid; grid-template-columns: 1fr 1fr 1.25fr; gap: 13px; }
+    .overview-card {
+      min-height: 130px;
+      padding: 21px 22px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: linear-gradient(145deg, rgba(31,43,33,.88), rgba(23,32,25,.72));
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.025);
+    }
+    .wallet-panel {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(250px, .95fr);
+      gap: 14px;
+      margin: 22px 0 4px;
+    }
+    .wallet-card {
+      position: relative;
+      min-height: 192px;
+      overflow: hidden;
+      padding: 23px 25px;
+      border: 1px solid rgba(205, 235, 169, .2);
+      border-radius: 19px;
+      background:
+        radial-gradient(ellipse at 92% 10%, rgba(201,238,140,.18), transparent 38%),
+        linear-gradient(135deg, #293d2b, #1d2b20 62%, #172219);
+      box-shadow: 0 16px 34px rgba(0,0,0,.2), inset 0 1px 0 rgba(255,255,255,.06);
+    }
+    .wallet-card::after {
+      position: absolute;
+      right: -72px;
+      bottom: -132px;
+      width: 270px;
+      height: 270px;
+      border: 1px solid rgba(207,239,159,.14);
+      border-radius: 50%;
+      box-shadow: 0 0 0 20px rgba(207,239,159,.035), 0 0 0 42px rgba(207,239,159,.025);
+      content: "";
+      pointer-events: none;
+    }
+    .wallet-card-top, .wallet-balance, .wallet-actions, .wallet-foot { position: relative; z-index: 1; }
+    .wallet-card-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .wallet-card-top span:first-child { color: #d3ddce; font-size: 11px; }
+    .wallet-chip { width: 30px; height: 23px; border: 1px solid rgba(224,242,202,.28); border-radius: 7px; background: linear-gradient(145deg, rgba(216,243,167,.3), rgba(216,243,167,.08)); }
+    .wallet-balance { margin-top: 21px; font: 800 29px Manrope,sans-serif; letter-spacing: -.9px; color: #f0f7e4; }
+    .wallet-balance small { margin-left: 5px; color: #b7c8aa; font: 500 11px "DM Sans",sans-serif; letter-spacing: 0; }
+    .wallet-actions { display: flex; gap: 8px; margin-top: 17px; }
+    .wallet-actions .button { min-height: 35px; padding: 0 12px; font-size: 10px; }
+    .wallet-foot { margin-top: 11px; color: #91a18e; font-size: 9px; }
+    .wallet-side { display: grid; grid-template-rows: 1fr 1fr; gap: 11px; }
+    .wallet-metric {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      min-height: 88px;
+      padding: 16px 18px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: linear-gradient(145deg, rgba(31,43,33,.88), rgba(23,32,25,.72));
+    }
+    .wallet-metric-label { color: #a4b09f; font-size: 10px; }
+    .wallet-metric-value { margin-top: 7px; color: #e8f1df; font: 700 17px Manrope,sans-serif; }
+    .wallet-metric-icon { width: 31px; height: 31px; display: grid; flex: 0 0 31px; place-items: center; border-radius: 10px; color: var(--lime); background: rgba(197,238,129,.09); }
+    .wallet-metric-icon svg { width: 16px; height: 16px; }
+    .wallet-history { margin-top: 13px; }
+    .wallet-history .activity-list { max-height: 260px; overflow-y: auto; padding-right: 4px; }
+    .wallet-history .activity-item { padding-bottom: 11px; border-bottom: 1px solid rgba(224,238,216,.06); }
+    .personal-account-actions { display: flex; justify-content: flex-end; margin-top: 18px; }
+    .personal-account-actions[hidden] { display: none; }
+    .logout-button { border-color: rgba(235,130,116,.32); color: #f0b0a7; background: rgba(235,130,116,.06); }
+    .logout-button:hover { border-color: rgba(235,130,116,.58); color: #ffd0c9; background: rgba(235,130,116,.12); }
+    .stat-label { display: flex; align-items: center; gap: 8px; color: #a7b2a5; font-size: 11px; }
+    .stat-icon { width: 27px; height: 27px; display: grid; place-items: center; border-radius: 9px; color: var(--lime); background: rgba(197,238,129,.09); }
+    .stat-icon svg { width: 14px; height: 14px; }
+    .stat-value { display: flex; align-items: baseline; gap: 6px; margin-top: 12px; font: 700 21px Manrope,sans-serif; letter-spacing: -.6px; }
+    .stat-value small { color: #849184; font: 500 10px "DM Sans",sans-serif; letter-spacing: 0; }
+    .stat-foot { margin-top: 5px; color: #859184; font-size: 10px; }
+    .stat-foot.positive { color: #add776; }
+
+    .products-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px; }
+    .product-card {
+      position: relative;
+      min-width: 0;
+      overflow: hidden;
+      border: 1px solid rgba(222,239,207,.12);
+      border-radius: 17px;
+      background: linear-gradient(160deg, #28372a, #1d2920 63%, #18221b);
+      box-shadow: 0 11px 22px rgba(0,0,0,.17), inset 0 1px 0 rgba(255,255,255,.045);
+      transition: transform .22s ease, border-color .22s ease, box-shadow .22s ease;
+    }
+    .product-card:hover { transform: translateY(-5px); border-color: rgba(197,238,129,.4); box-shadow: 0 18px 32px rgba(0,0,0,.25), 0 0 22px rgba(197,238,129,.055); }
+    .product-image { position: relative; height: 150px; overflow: hidden; background: #394b35; }
+    .product-image::after { position: absolute; inset: 30% 0 0; background: linear-gradient(0deg, rgba(18,27,19,.78), transparent); content: ""; }
+    .product-image img { width: 100%; height: 100%; object-fit: cover; opacity: .85; transition: transform .4s ease; }
+    .product-card:hover .product-image img { transform: scale(1.06); }
+    .product-tag {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 1;
+      padding: 5px 8px;
+      border: 1px solid rgba(244,255,232,.16);
+      border-radius: 7px;
+      color: #eff8df;
+      background: rgba(18,27,19,.57);
+      backdrop-filter: blur(8px);
+      font-size: 9px;
+    }
+    .image-credit {
+      position: absolute;
+      right: 7px;
+      bottom: 7px;
+      z-index: 1;
+      padding: 4px 6px;
+      border-radius: 6px;
+      color: #e7eee1;
+      background: rgba(15, 23, 17, .7);
+      font-size: 8px;
+      text-decoration: none;
+    }
+    .product-body { padding: 16px 15px 15px; }
+    .product-body h3 { margin: 0 0 5px; font-size: 16px; letter-spacing: -.3px; }
+    .product-origin { color: #98a595; font-size: 9px; }
+    .product-price-label { margin-top: 16px; color: #8e9b8d; font-size: 9px; }
+    .product-price { margin-top: 5px; color: #e6f4d0; font: 700 19px Manrope,sans-serif; letter-spacing: -.5px; }
+    .product-price small { color: #9caa98; font: 500 10px "DM Sans",sans-serif; }
+    .product-bottom { display: flex; align-items: center; justify-content: space-between; gap: 5px; margin-top: 13px; padding-top: 11px; border-top: 1px solid rgba(224,238,216,.09); }
+    .product-bottom span { color: #9aaa96; font-size: 9px; }
+    .product-bottom button {
+      min-height: 30px;
+      padding: 0 10px;
+      border: 1px solid rgba(197,238,129,.23);
+      border-radius: 8px;
+      color: #d5f09f;
+      background: rgba(197,238,129,.08);
+      font-size: 10px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .product-bottom button:hover { color: #182215; background: var(--lime); }
+
+    .lower-grid { display: grid; grid-template-columns: 1.35fr 1fr; gap: 14px; margin-top: 27px; }
+    .panel {
+      padding: 19px 20px;
+      border: 1px solid var(--border);
+      border-radius: 17px;
+      background: linear-gradient(145deg, rgba(30,41,32,.8), rgba(21,30,23,.82));
+    }
+    .daily-reward-panel { margin-bottom: 18px; border-color: rgba(197,238,129,.2); }
+    .daily-reward-panel h3 { margin: 0; font-size: 15px; }
+    .daily-reward-copy, .daily-reward-status { color: #9aa797; font-size: 11px; line-height: 1.65; }
+    .daily-reward-copy { margin: 8px 0 15px; }
+    .daily-reward-packages { display: grid; gap: 8px; }
+    .daily-reward-package { display: flex; justify-content: space-between; gap: 12px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; color: #dce8d3; font-size: 11px; }
+    .daily-reward-package span:last-child { color: var(--lime); font-weight: 700; text-align: right; }
+    .daily-reward-footer { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-top: 15px; }
+    .daily-reward-total { color: #a7b3a2; font-size: 11px; }
+    .daily-reward-total strong { display: block; margin-top: 4px; color: var(--lime); font: 800 20px Manrope,sans-serif; }
+    .daily-reward-status { margin: 10px 0 0; }
+    .daily-reward-button:disabled { opacity: .48; cursor: not-allowed; }
+    .panel-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 17px; }
+    .panel-head h3 { margin: 0; font-size: 14px; letter-spacing: -.3px; }
+    .panel-head span { color: #8e9a8d; font-size: 10px; }
+    .activity-list { display: grid; gap: 14px; }
+    .activity-item { display: flex; align-items: center; gap: 11px; }
+    .activity-icon { width: 34px; height: 34px; display: grid; flex: 0 0 34px; place-items: center; border-radius: 11px; color: #c9ee91; background: rgba(197,238,129,.09); }
+    .activity-icon.withdraw { color: #e5b683; background: rgba(228,168,102,.1); }
+    .activity-icon svg { width: 15px; }
+    .activity-info { min-width: 0; flex: 1; }
+    .activity-info strong { display: block; font-size: 10px; font-weight: 600; }
+    .activity-info span { display: block; margin-top: 4px; color: #899688; font-size: 9px; }
+    .activity-amount { text-align: right; font-size: 10px; font-weight: 700; }
+    .activity-amount.positive { color: #c8ed8c; }
+    .activity-amount.negative { color: #e7b37f; }
+    .empty-state { padding: 14px 0; color: var(--muted); text-align: center; font-size: 11px; }
+    .market-highlight { position: relative; min-height: 148px; overflow: hidden; }
+    .market-highlight::after { position: absolute; right: -35px; bottom: -65px; width: 170px; height: 170px; border: 1px solid rgba(197,238,129,.17); border-radius: 50%; box-shadow: 0 0 0 20px rgba(197,238,129,.03), 0 0 0 42px rgba(197,238,129,.025); content: ""; }
+    .market-highlight .eyebrow { font-size: 9px; }
+    .market-highlight h3 { position: relative; z-index: 1; max-width: 230px; margin: 12px 0 8px; font-size: 17px; line-height: 1.4; }
+    .market-highlight p { position: relative; z-index: 1; max-width: 230px; margin: 0; color: #9aa797; font-size: 10px; line-height: 1.6; }
+    .disclaimer { margin: 22px 2px 0; color: #748073; font-size: 9px; line-height: 1.6; }
+    .mobile-nav {
+      position: fixed;
+      right: 50%;
+      bottom: 18px;
+      z-index: 5;
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      width: min(820px, calc(100% - 36px));
+      padding: 9px;
+      transform: translateX(50%);
+      border: 1px solid rgba(224,238,216,.12);
+      border-radius: 17px;
+      background: rgba(19,28,21,.94);
+      box-shadow: 0 14px 42px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.035);
+      backdrop-filter: blur(16px);
+    }
+    .mobile-nav a {
+      display: grid;
+      justify-items: center;
+      gap: 5px;
+      min-height: 58px;
+      padding: 8px 4px 6px;
+      border-radius: 11px;
+      color: #879386;
+      text-decoration: none;
+      font-size: 11px;
+      transition: color .18s ease, background .18s ease;
+    }
+    .mobile-nav a:hover, .mobile-nav a.active { color: var(--lime); background: rgba(197,238,129,.08); }
+    .mobile-nav svg { width: 19px; height: 19px; }
+    .mobile-nav button {
+      display: grid;
+      justify-items: center;
+      align-content: center;
+      gap: 5px;
+      min-width: 0;
+      min-height: 58px;
+      padding: 8px 3px 6px;
+      border: 0;
+      border-radius: 11px;
+      color: #a7ba91;
+      background: rgba(197,238,129,.045);
+      font: 600 11px "DM Sans", sans-serif;
+      cursor: pointer;
+      transition: color .18s ease, background .18s ease;
+    }
+    .mobile-nav button:hover { color: var(--lime); background: rgba(197,238,129,.1); }
+    .mobile-nav button svg { width: 18px; height: 18px; }
+    [data-page][hidden] { display: none !important; }
+    .support-page { max-width: 760px; margin: 20px auto 0; }
+    .support-card {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      margin-top: 20px;
+      padding: 26px;
+      border: 1px solid rgba(197,238,129,.2);
+      border-radius: 20px;
+      background: linear-gradient(145deg, rgba(197,238,129,.1), rgba(31,43,33,.88) 58%);
+      box-shadow: 0 15px 38px rgba(0,0,0,.2), inset 0 1px 0 rgba(255,255,255,.035);
+    }
+    .support-icon { width: 52px; height: 52px; display: grid; flex: 0 0 52px; place-items: center; border: 1px solid rgba(197,238,129,.18); border-radius: 16px; color: var(--lime); background: rgba(197,238,129,.09); }
+    .support-icon svg { width: 24px; height: 24px; }
+    .support-card span { display: block; color: #9eac9a; font-size: 11px; }
+    .support-card strong { display: block; margin-top: 7px; color: #e6f4d0; font: 700 20px Manrope,sans-serif; overflow-wrap: anywhere; }
+    .support-card strong a { color: inherit; text-decoration-color: rgba(197,238,129,.45); text-underline-offset: 4px; }
+    .support-card strong a:hover { color: var(--lime); }
+    .support-copy { margin-top: 8px; color: #93a08f; font-size: 11px; line-height: 1.65; }
+    .home-intro { margin-top: 34px; }
+    .home-intro-copy { max-width: 680px; color: #a5b0a1; font-size: 13px; line-height: 1.8; }
+    .intro-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 20px; }
+    .intro-card {
+    min-height: 132px;
+    padding: 19px;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: linear-gradient(145deg, rgba(31,43,33,.88), rgba(23,32,25,.72));
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.025);
+    }
+    .intro-card-icon { width: 32px; height: 32px; display: grid; place-items: center; border-radius: 10px; color: var(--lime); background: rgba(197,238,129,.09); }
+    .intro-card-icon svg { width: 17px; height: 17px; }
+    .intro-card h3 { margin: 13px 0 6px; font-size: 13px; }
+    .intro-card p { margin: 0; color: #98a595; font-size: 10px; line-height: 1.65; }
+
+    .modal-backdrop { position: fixed; inset: 0; z-index: 10; display: none; place-items: center; padding: 18px; background: rgba(5,10,7,.72); backdrop-filter: blur(7px); }
+    .modal-backdrop.open { display: grid; }
+    .modal {
+      width: min(100%, 410px);
+      max-height: calc(100vh - 36px);
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
+      padding: 24px;
+      border: 1px solid rgba(220,237,204,.16);
+      border-radius: 20px;
+      background: linear-gradient(155deg, #223025, #172119);
+      box-shadow: 0 25px 80px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.045);
+    }
+    @supports (height: 100dvh) {
+      .modal { max-height: calc(100dvh - 36px); }
+    }
+    .modal-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 20px; }
+    .modal-head h2 { margin: 5px 0 0; font-size: 20px; letter-spacing: -.6px; }
+    .close-button { width: 30px; height: 30px; display: grid; place-items: center; border: 1px solid var(--border); border-radius: 9px; color: #aab5a8; background: transparent; cursor: pointer; }
+    .close-button svg { width: 14px; }
+    .modal-copy { margin: -8px 0 17px; color: #9eab9c; font-size: 11px; line-height: 1.6; }
+    .modal-field { display: grid; gap: 7px; margin-bottom: 15px; }
+    .modal-field label { color: #b5c0b2; font-size: 10px; font-weight: 600; }
+    .input-wrap { position: relative; }
+    .modal-field input, .modal-field select {
+      width: 100%;
+      height: 45px;
+      padding: 0 13px;
+      border: 1px solid rgba(224,238,216,.13);
+      border-radius: 11px;
+      outline: none;
+      color: var(--text);
+      background: rgba(9,16,11,.4);
+      font-size: 12px;
+    }
+    .modal-field input:focus, .modal-field select:focus { border-color: rgba(197,238,129,.55); box-shadow: 0 0 0 3px rgba(197,238,129,.08); }
+    .modal-field select option { color: var(--text); background: #1b281d; }
+    .modal-field[hidden] { display: none; }
+    .auth-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-bottom: 18px; padding: 4px; border: 1px solid var(--border); border-radius: 12px; background: rgba(9,16,11,.3); }
+    .auth-tab { min-height: 35px; border: 0; border-radius: 8px; color: #97a395; background: transparent; font-size: 11px; font-weight: 600; cursor: pointer; }
+    .auth-tab.active { color: #1b2616; background: linear-gradient(145deg, #d9f4a8, #a9d46a); }
+    .currency-suffix { position: absolute; top: 50%; right: 13px; transform: translateY(-50%); color: #8f9c8d; font-size: 10px; pointer-events: none; }
+    .modal-note { margin: -4px 0 16px; padding: 10px 11px; border: 1px solid rgba(197,238,129,.1); border-radius: 10px; color: #a8b5a2; background: rgba(197,238,129,.045); font-size: 10px; line-height: 1.55; }
+    .modal-submit { width: 100%; }
+    .payment-order { margin-top: 16px; padding: 15px; border: 1px solid rgba(197,238,129,.18); border-radius: 13px; background: rgba(197,238,129,.045); }
+    .payment-order[hidden] { display: none; }
+    .payment-order img { display: block; width: min(100%, 220px); aspect-ratio: 1; margin: 0 auto 13px; border-radius: 10px; background: #fff; object-fit: contain; }
+    .payment-order p { margin: 7px 0 0; color: #a8b5a2; font-size: 10px; line-height: 1.6; overflow-wrap: anywhere; }
+    .payment-order strong { color: #e6f2d8; }
+    .payment-status { margin-top: 12px !important; color: var(--lime) !important; }
+    .modal-submit[hidden] { display: none; }
+    .toast {
+      position: fixed;
+      right: 22px;
+      bottom: 22px;
+      z-index: 20;
+      max-width: calc(100vw - 44px);
+      padding: 13px 17px;
+      border: 1px solid rgba(197,238,129,.24);
+      border-radius: 12px;
+      color: #e6f2d8;
+      background: #263729;
+      box-shadow: 0 10px 30px rgba(0,0,0,.35);
+      font-size: 12px;
+      opacity: 0;
+      transform: translateY(10px);
+      pointer-events: none;
+      transition: .22s ease;
+    }
+    .toast.visible { opacity: 1; transform: translateY(0); }
+    .telegram-welcome {
+      position: fixed;
+      right: 24px;
+      bottom: max(86px, env(safe-area-inset-bottom) + 78px);
+      z-index: 19;
+      width: min(370px, calc(100vw - 32px));
+      padding: 18px;
+      border: 1px solid rgba(76,201,240,.42);
+      border-radius: 18px;
+      background: linear-gradient(145deg, #1d343b, #17251f 76%);
+      box-shadow: 0 18px 48px rgba(0,0,0,.48), 0 0 0 1px rgba(76,201,240,.08);
+    }
+    .telegram-welcome[hidden] { display: none; }
+    .telegram-welcome-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .telegram-welcome-title { display: flex; align-items: center; gap: 11px; min-width: 0; }
+    .telegram-welcome-icon { width: 42px; height: 42px; flex: 0 0 42px; display: grid; place-items: center; border-radius: 13px; color: #062b3b; background: #4cc9f0; box-shadow: 0 5px 16px rgba(76,201,240,.25); }
+    .telegram-welcome-icon svg { width: 24px; height: 24px; }
+    .telegram-welcome h2 { margin: 0; font: 800 15px Manrope,sans-serif; line-height: 1.35; }
+    .telegram-welcome p { margin: 13px 0 9px; color: #d3e2dd; font-size: 12px; line-height: 1.6; }
+    .telegram-group-address { display: inline-block; margin-bottom: 15px; color: #7edcf5 !important; font-size: 12px; letter-spacing: .2px; }
+    .telegram-welcome-actions { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .telegram-welcome-actions .button { min-height: 40px; padding: 0 15px; border: 0; color: #062b3b; background: #4cc9f0; box-shadow: 0 5px 16px rgba(76,201,240,.18); font-size: 11px; font-weight: 800; }
+    .telegram-welcome-actions .button:hover { background: #7edcf5; }
+    .telegram-welcome-close { min-width: 34px; min-height: 34px; display: grid; place-items: center; border: 1px solid rgba(224,238,216,.18); border-radius: 9px; color: #d3e2dd; background: rgba(255,255,255,.04); cursor: pointer; }
+    #dismissTelegramWelcome { padding: 0 9px; font-size: 11px; }
+    .telegram-welcome-close:hover { color: #fff; background: rgba(255,255,255,.1); }
+    .support-contact { margin-top: 20px; color: #9eab9c; font-size: 11px; }
+    .support-contact a, .telegram-welcome a { color: var(--lime); font-weight: 700; text-decoration: none; }
+    .support-contact a:hover, .telegram-welcome a:hover { text-decoration: underline; }
+
+    @media (max-width: 1100px) {
+      .main { padding-right: 27px; padding-left: 27px; }
+      .sidebar { width: 220px; flex-basis: 220px; }
+      .main { width: calc(100% - 220px); }
+      .products-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .product-image { height: 145px; }
+    }
+    @media (max-width: 900px) {
+      .sidebar { display: none; }
+      .main { width: 100%; padding: 18px 18px 110px; }
+      .topbar { margin-bottom: 24px; }
+      .mobile-brand { display: flex; align-items: center; gap: 8px; color: var(--text); font: 800 13px Manrope,sans-serif; }
+      .mobile-brand .brand-mark { width: 31px; height: 31px; border-radius: 10px; }
+      .mobile-brand .brand-mark svg { width: 18px; }
+      .top-actions > .icon-button { display: none; }
+      .auth-actions { gap: 5px; }
+      .auth-actions .button { min-height: 30px; padding: 0 7px; font-size: 9px; }
+      .breadcrumb, .top-user span { display: none; }
+      .top-user { margin-left: 0; }
+      .top-user .avatar { width: 34px; height: 34px; }
+      .top-actions { gap: 7px; }
+      .icon-button { width: 35px; height: 35px; }
+      .hero { min-height: 224px; align-items: flex-start; padding: 26px 23px; }
+      .hero-note { display: none; }
+      .hero .intro-copy { max-width: 430px; }
+      .overview-grid { grid-template-columns: 1fr 1fr; }
+      .overview-card:last-child { grid-column: span 2; min-height: 100px; }
+      .wallet-panel { grid-template-columns: 1fr; }
+      .wallet-side { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr; }
+      .wallet-metric { min-height: 83px; padding: 13px 12px; }
+      .wallet-metric-value { font-size: 13px; }
+      .member-grid { grid-template-columns: 1fr; }
+      .intro-cards { grid-template-columns: 1fr; }
+      .products-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .product-image { height: 190px; }
+      .lower-grid { grid-template-columns: 1fr; }
+      .mobile-nav { right: 0; bottom: 0; width: 100%; padding: 8px 5px max(8px, env(safe-area-inset-bottom)); transform: none; border-right: 0; border-bottom: 0; border-left: 0; border-radius: 16px 16px 0 0; }
+      .telegram-welcome { right: 12px; bottom: calc(82px + env(safe-area-inset-bottom)); width: min(390px, calc(100vw - 24px)); padding: 16px; }
+    }
+    @media (max-width: 420px) {
+      .main { padding-right: 14px; padding-left: 14px; }
+      .hero { padding: 23px 18px; }
+      .hero-actions { gap: 7px; }
+      .hero-actions .button { padding: 0 11px; font-size: 10px; }
+      .wallet-card { padding: 20px 18px; }
+      .wallet-balance { font-size: 25px; }
+      .wallet-side { gap: 7px; }
+      .wallet-metric { align-items: flex-start; flex-direction: column-reverse; gap: 8px; padding: 11px; }
+      .wallet-metric-value { font-size: 11px; }
+      .mobile-nav a, .mobile-nav button { min-height: 48px; gap: 4px; padding-right: 1px; padding-left: 1px; font-size: 8px; }
+      .mobile-nav button svg { width: 17px; height: 17px; }
+      .product-image { height: 155px; }
+      .product-body { padding-right: 10px; padding-left: 10px; }
+      .product-bottom button { padding: 0 7px; font-size: 9px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <a class="brand" href="#" aria-label="nongsanviet trang chủ">
+        <span class="brand-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21V10"/><path d="M12 13c-5.5 0-8-2.8-8-7 5.3 0 8 2.4 8 7Z"/><path d="M12 10c0-4.1 2.5-6.5 7-6.5 0 4.7-2.2 7.5-7 7.5"/></svg></span>
+        nongsanviet
+      </a>
+      <div class="sidebar-bottom">
+        <div class="profile" id="nguoi-dung">
+          <div class="avatar">KH</div>
+          <div class="profile-info"><strong>Khách tham quan</strong><span>Chưa đăng nhập</span></div>
+          <span class="profile-menu">···</span>
+        </div>
+        <div class="support-link">CSKH ·
+          <a href="https://t.me/anhkhoanguyen" target="_blank" rel="noopener noreferrer">@anhkhoanguyen</a>
+          · <a href="https://t.me/Sangvietcode" target="_blank" rel="noopener noreferrer">@Sangvietcode</a>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main" id="tong-quan">
+      <header class="topbar">
+        <div class="mobile-brand">
+          <span class="brand-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21V10"/><path d="M12 13c-5.5 0-8-2.8-8-7 5.3 0 8 2.4 8 7Z"/><path d="M12 10c0-4.1 2.5-6.5 7-6.5 0 4.7-2.2 7.5-7 7.5"/></svg></span>
+          nongsanviet
+        </div>
+        <div class="breadcrumb">Không gian của bạn <span> / </span> <strong>Tổng quan</strong></div>
+        <div class="top-actions">
+          <button class="icon-button" aria-label="Thông báo" id="notificationButton"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg></button>
+          <div class="auth-actions">
+            <button class="button button-outline" data-open-auth="login">Đăng nhập</button>
+            <button class="button button-primary" data-open-auth="register">Đăng ký</button>
+          </div>
+          <button class="top-account-summary" id="topAccountSummary" type="button" aria-label="Mở ví và hồ sơ" hidden>
+            <span class="avatar" id="topAccountAvatar">KH</span>
+            <span class="top-account-info"><strong id="topAccountUsername"></strong><span><span id="topAccountBalance">0</span> điểm · Ví</span></span>
+          </button>
+        </div>
+      </header>
+
+      <section class="hero" aria-labelledby="welcomeTitle" data-page="home">
+        <div class="hero-content">
+          <span class="eyebrow"><span class="eyebrow-dot"></span> Nông sản — mùa vụ mới</span>
+          <h1 id="welcomeTitle">Gieo giá trị xanh,<br>gặt tương lai lành.</h1>
+          <p class="intro-copy">Khám phá các danh mục nông sản được tuyển chọn và bắt đầu hành trình của bạn từ hôm nay.</p>
+          <div class="hero-actions">
+            <button class="button button-primary" data-open-modal="deposit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14m-7-7h14"/></svg>Nạp điểm</button>
+            <button class="button button-outline" data-open-modal="withdraw"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/></svg>Rút điểm</button>
+          </div>
+        </div>
+        <div class="hero-note">
+          <span>Danh mục nổi bật</span>
+          <strong>Vườn sầu riêng</strong>
+          <small>Đang mở đăng ký mùa vụ</small>
+        </div>
+      </section>
+
+      <section class="home-intro" aria-labelledby="aboutTitle" data-page="home">
+        <div class="section-heading">
+          <div><span class="eyebrow">Về nongsanviet</span><h2 id="aboutTitle">Kết nối bạn với nông sản Việt</h2></div>
+        </div>
+        <p class="home-intro-copy">nongsanviet giúp bạn khám phá các danh mục nông sản, tham gia gói và theo dõi điểm trong tài khoản được lưu trên máy chủ.</p>
+        <div class="intro-cards">
+          <article class="intro-card"><span class="intro-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21s-8-4.4-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 6.6-8 11-8 11Z"/><path d="M12 17V9"/></svg></span><h3>Khám phá mùa vụ</h3><p>Tìm hiểu củ đậu, nho, dâu, sầu riêng và macca trong các danh mục riêng.</p></article>
+          <article class="intro-card"><span class="intro-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 9h18m-5 5h2"/></svg></span><h3>Quản lý ví điểm</h3><p>Theo dõi số dư và lịch sử giao dịch trực tiếp từ máy chủ.</p></article>
+          <article class="intro-card"><span class="intro-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.7 10.7 6.6-4.4m-6.6 7 6.6 4.1"/></svg></span><h3>Chia sẻ cùng bạn bè</h3><p>Nhập mã khi đăng ký; người giới thiệu nhận 10% điểm khi bạn tham gia thành công một gói.</p></article>
+        </div>
+        <p class="support-contact">Cần hỗ trợ? CSKH trên Telegram:
+          <a href="https://t.me/anhkhoanguyen" target="_blank" rel="noopener noreferrer">@anhkhoanguyen</a>
+          · <a href="https://t.me/Sangvietcode" target="_blank" rel="noopener noreferrer">@Sangvietcode</a>
+        </p>
+        <p class="disclaimer">Tài khoản, tham gia gói và điểm hoạt động đã được kết nối hệ thống.</p>
+      </section>
+
+      <section aria-label="Tổng quan tài khoản" data-page="personal" hidden>
+        <div class="section-heading">
+          <div><span class="eyebrow">Tài sản của bạn</span><h2>Tổng quan tài khoản</h2></div>
+          <a class="text-link" href="#vi-diem" data-open-page="personal">Xem hoạt động →</a>
+        </div>
+        <div class="overview-grid">
+          <article class="overview-card">
+            <div class="stat-label"><span class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M15 8.5c-.6-.7-1.6-1-3-1-1.7 0-2.8.8-2.8 2s1 1.8 2.8 2.2 2.8 1 2.8 2.3-1.1 2.3-3 2.3c-1.4 0-2.6-.5-3.3-1.3M12 5.5v13"/></svg></span>Số dư điểm</div>
+            <div class="stat-value"><span id="balanceValue">0</span><small>điểm</small></div>
+            <div class="stat-foot">Sẵn sàng sử dụng</div>
+          </article>
+          <article class="overview-card">
+            <div class="stat-label"><span class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21s-8-4.4-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 6.6-8 11-8 11Z"/></svg></span>Đang đầu tư</div>
+            <div class="stat-value"><span id="investmentValue">0</span><small>điểm</small></div>
+            <div class="stat-foot">Tổng vốn đã phân bổ</div>
+          </article>
+          <article class="overview-card">
+            <div class="stat-label"><span class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 17 9 11l4 4 8-9"/><path d="M15 6h6v6"/></svg></span>Danh mục đang mở</div>
+            <div class="stat-value">05<small>nông sản</small></div>
+            <div class="stat-foot positive">Củ đậu · Nho · Dâu · Sầu riêng · Macca</div>
+          </article>
+        </div>
+      </section>
+
+      <section id="vi-diem" aria-labelledby="walletTitle" data-page="personal" hidden>
+        <div class="section-heading">
+          <div><span class="eyebrow">Thông tin người dùng</span><h2 id="profileTitle">Cá nhân</h2><p>Hồ sơ và mã giới thiệu của bạn.</p></div>
+        </div>
+        <div class="member-grid">
+          <article class="member-card">
+            <h3>Hồ sơ người chơi</h3>
+            <div class="member-detail"><span>Họ và tên</span><strong id="memberName">Khách tham quan</strong></div>
+            <div class="member-detail"><span>Tên người dùng</span><strong id="memberUsername">Chưa đăng ký</strong></div>
+            <div class="member-detail"><span>Mã tài khoản</span><strong id="memberAccountId">Chưa đăng nhập</strong></div>
+            <div class="member-detail"><span>Email</span><strong id="memberEmail">Chưa đăng nhập</strong></div>
+            <div class="member-detail"><span>Mã người giới thiệu</span><strong id="memberReferrer">Chưa nhập</strong></div>
+            <span class="member-status" id="memberStatus">Chưa xác thực tài khoản</span>
+          </article>
+          <article class="member-card">
+            <h3>Link giới thiệu của bạn</h3>
+            <p class="referral-rule">Chia sẻ mã này khi bạn bè đăng ký. Khi tài khoản được giới thiệu tham gia thành công một gói, người giới thiệu nhận thưởng <strong>10% bằng điểm</strong> trên giá gói.</p>
+            <div class="referral-code-row"><div class="referral-code" id="myReferralCode">Đăng ký để tạo link</div><button class="button button-outline" id="copyReferralCode" type="button" disabled>Sao chép link</button></div>
+            <div class="referral-example">Ví dụ: người được giới thiệu tham gia gói 100.000 điểm → người giới thiệu được cộng 10.000 điểm. Chỉ phát sinh sau khi tham gia thành công.</div>
+            <div class="member-detail"><span>Tổng điểm thưởng giới thiệu</span><strong id="referralRewardValue">0 điểm</strong></div>
+            <p class="referral-rule">Điểm thưởng được ghi nhận vào ví máy chủ của người giới thiệu sau khi gói được tham gia thành công.</p>
+          </article>
+        </div>
+        <div class="section-heading">
+          <div><span class="eyebrow">Quản lý điểm</span><h2 id="walletTitle">Ví của tôi</h2><p>Theo dõi số dư và các giao dịch điểm của bạn.</p></div>
+          <a class="text-link" href="#lich-su">Xem hoạt động →</a>
+        </div>
+        <div class="wallet-panel">
+          <article class="wallet-card">
+            <div class="wallet-card-top"><span>Số dư khả dụng</span><span class="wallet-chip" aria-hidden="true"></span></div>
+            <div class="wallet-balance"><span id="walletBalanceValue">0</span><small>điểm</small></div>
+            <div class="wallet-actions">
+              <button class="button button-primary" data-open-modal="deposit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14m-7-7h14"/></svg>Nạp điểm</button>
+              <button class="button button-outline" data-open-modal="withdraw"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/></svg>Rút điểm</button>
+            </div>
+            <div class="wallet-foot">Số dư và lịch sử giao dịch được đồng bộ trực tiếp với máy chủ hệ thống</div>
+          </article>
+          <div class="wallet-side">
+            <article class="wallet-metric"><div><div class="wallet-metric-label">Đang đầu tư</div><div class="wallet-metric-value" id="walletInvestedValue">0 điểm</div></div><span class="wallet-metric-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21s-8-4.4-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 6.6-8 11-8 11Z"/></svg></span></article>
+            <article class="wallet-metric"><div><div class="wallet-metric-label">Tổng điểm trong ví</div><div class="wallet-metric-value" id="walletTotalValue">0 điểm</div></div><span class="wallet-metric-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 9h18m-5 5h2"/></svg></span></article>
+          </div>
+        </div>
+        <article class="panel wallet-history">
+          <div class="panel-head"><h3>Giao dịch trong ví</h3><span id="walletActivityCount">0 giao dịch</span></div>
+          <div class="activity-list" id="walletActivityList"><div class="empty-state">Giao dịch nạp, rút hoặc đầu tư sẽ hiển thị tại đây.</div></div>
+        </article>
+        <div class="personal-account-actions" id="personalAccountActions" hidden>
+          <button class="button button-outline logout-button" id="logoutButton" type="button">Đăng xuất</button>
+        </div>
+      </section>
+
+      <section id="nhiem-vu" data-page="tasks" hidden>
+        <div class="section-heading">
+          <div><span class="eyebrow">Chọn điều bạn yêu</span><h2>Nhiệm vụ nông sản</h2><p>Chọn danh mục mùa vụ để tham gia bằng điểm.</p></div>
+          <a class="text-link" href="#nhiem-vu">Tất cả nhiệm vụ →</a>
+        </div>
+        <article class="panel daily-reward-panel" aria-labelledby="dailyRewardTitle">
+          <h3 id="dailyRewardTitle">Điểm nhiệm vụ hằng ngày</h3>
+          <p class="daily-reward-copy">Ngày tham gia gói chưa được nhận điểm. Bắt đầu từ ngày hôm sau, mỗi gói được nhận 10% giá gói mỗi ngày trong 30 ngày. Điểm được máy chủ cộng vào tài khoản khi bạn nhận, tối đa một lần mỗi ngày.</p>
+          <div class="daily-reward-packages" id="dailyRewardPackages"></div>
+          <div class="daily-reward-footer">
+            <div class="daily-reward-total">Tổng điểm có thể nhận hôm nay<strong id="dailyRewardAmount">0 điểm</strong></div>
+            <button class="button button-primary daily-reward-button" id="dailyRewardButton" type="button" disabled>Nhận điểm</button>
+          </div>
+          <p class="daily-reward-status" id="dailyRewardStatus" aria-live="polite"></p>
+        </article>
+        <div class="products-grid">
+          <article class="product-card" data-product="Củ đậu" data-price="100000">
+            <div class="product-image"><img src="https://thumb.wikimedia.org/wikipedia/commons/thumb/9/99/Jicama-Jakarta.JPG/960px-Jicama-Jakarta.JPG" alt="Củ đậu tươi" loading="lazy"><span class="product-tag">Vụ mới</span><a class="image-credit" href="https://commons.wikimedia.org/wiki/File:Jicama-Jakarta.JPG" target="_blank" rel="noopener noreferrer" aria-label="Ảnh: Lord Mountbatten, giấy phép CC BY-SA 3.0">Ảnh: Lord Mountbatten · CC BY-SA 3.0</a></div>
+            <div class="product-body"><h3>Củ đậu</h3><span class="product-origin">Đất lành · Vụ thu đông</span><div class="product-price-label">Mức tham gia từ</div><div class="product-price">100.000 <small>điểm</small></div><div class="product-bottom"><span>Đang mở</span><button data-invest>Tham gia +</button></div></div>
+          </article>
+          <article class="product-card" data-product="Nho" data-price="300000">
+            <div class="product-image"><img src="https://images.unsplash.com/photo-1537640538966-79f369143f8f?auto=format&fit=crop&w=700&q=80" alt="Chùm nho chín trên giàn" loading="lazy"><span class="product-tag">Được yêu thích</span></div>
+            <div class="product-body"><h3>Nho</h3><span class="product-origin">Nắng ấm · Vườn nho xanh</span><div class="product-price-label">Mức tham gia từ</div><div class="product-price">300.000 <small>điểm</small></div><div class="product-bottom"><span>Đang mở</span><button data-invest>Tham gia +</button></div></div>
+          </article>
+          <article class="product-card" data-product="Dâu" data-price="800000">
+            <div class="product-image"><img src="https://images.unsplash.com/photo-1464965911861-746a04b4bca6?auto=format&fit=crop&w=700&q=80" alt="Những quả dâu tây chín mọng" loading="lazy"><span class="product-tag">Mùa thu hoạch</span></div>
+            <div class="product-body"><h3>Dâu</h3><span class="product-origin">Cao nguyên · Dâu tươi</span><div class="product-price-label">Mức tham gia từ</div><div class="product-price">800.000 <small>điểm</small></div><div class="product-bottom"><span>Đang mở</span><button data-invest>Tham gia +</button></div></div>
+          </article>
+          <article class="product-card" data-product="Sầu riêng" data-price="1500000">
+            <div class="product-image"><img src="https://thumb.wikimedia.org/wikipedia/commons/thumb/3/37/Durian_Fruit_in_Yunnan.jpg/960px-Durian_Fruit_in_Yunnan.jpg" alt="Quả sầu riêng ở Vân Nam" loading="lazy"><span class="product-tag">Mùa vụ đặc biệt</span><a class="image-credit" href="https://commons.wikimedia.org/wiki/File:Durian_Fruit_in_Yunnan.jpg" target="_blank" rel="noopener noreferrer" aria-label="Ảnh: Rod Waddington, giấy phép CC BY-SA 2.0">Ảnh: Rod Waddington · CC BY-SA 2.0</a></div>
+            <div class="product-body"><h3>Sầu riêng</h3><span class="product-origin">Miền nhiệt đới · Vườn xanh</span><div class="product-price-label">Mức tham gia từ</div><div class="product-price">1.500.000 <small>điểm</small></div><div class="product-bottom"><span>Đang mở</span><button data-invest>Tham gia +</button></div></div>
+          </article>
+          <article class="product-card" data-product="Macca" data-price="3000000">
+            <div class="product-image"><img src="https://thumb.wikimedia.org/wikipedia/commons/thumb/9/96/Macadamia_nuts_on_tree.JPG/960px-Macadamia_nuts_on_tree.JPG" alt="Quả macca còn trên cây" loading="lazy"><span class="product-tag">Giá trị bền lâu</span><a class="image-credit" href="https://commons.wikimedia.org/wiki/File:Macadamia_nuts_on_tree.JPG" target="_blank" rel="noopener noreferrer" aria-label="Ảnh: MorePix, giấy phép CC BY-SA 3.0">Ảnh: MorePix · CC BY-SA 3.0</a></div>
+            <div class="product-body"><h3>Macca</h3><span class="product-origin">Đồi cao · Mùa hạt mới</span><div class="product-price-label">Mức tham gia từ</div><div class="product-price">3.000.000 <small>điểm</small></div><div class="product-bottom"><span>Đang mở</span><button data-invest>Tham gia +</button></div></div>
+          </article>
+          <article class="product-card" data-product="laeekima" data-price="190000">
+            <div class="product-image"><img src="https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6c/L%C3%AAkima_ch%C3%ADn.jpg/960px-L%C3%AAkima_ch%C3%ADn.jpg" alt="Quả lê-ki-ma chín ở miền Nam Việt Nam" loading="lazy"><span class="product-tag">Nhiệm vụ mới</span><a class="image-credit" href="https://commons.wikimedia.org/wiki/File:L%C3%AAkima_ch%C3%ADn.jpg" target="_blank" rel="noopener noreferrer" aria-label="Ảnh: Bùi Thụy Đào Nguyên, giấy phép CC BY-SA 4.0">Ảnh: Bùi Thụy Đào Nguyên · CC BY-SA 4.0</a></div>
+            <div class="product-body"><h3>laeekima</h3><span class="product-origin">Nông sản xanh · Mùa vụ mới</span><div class="product-price-label">Mức tham gia từ</div><div class="product-price">190.000 <small>điểm</small></div><div class="product-bottom"><span>Đang mở</span><button data-invest>Tham gia +</button></div></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="lower-grid" id="lich-su" data-page="personal" hidden>
+        <article class="panel">
+          <div class="panel-head"><h3>Hoạt động gần đây</h3><span id="activityCount">Hôm nay</span></div>
+          <div class="activity-list" id="activityList"><div class="empty-state">Chưa có hoạt động nào. Hãy bắt đầu với một danh mục nông sản nhé.</div></div>
+        </article>
+        <article class="panel market-highlight">
+          <span class="eyebrow"><span class="eyebrow-dot"></span> Cùng vun trồng</span>
+          <h3>Mỗi lựa chọn là một mầm xanh.</h3>
+          <p>Khám phá câu chuyện phía sau từng mùa vụ và tìm danh mục phù hợp với bạn.</p>
+        </article>
+      </section>
+      <section class="support-page" id="cskh" data-page="support" aria-labelledby="supportTitle" hidden>
+        <span class="eyebrow"><span class="eyebrow-dot"></span> Chúng tôi luôn sẵn sàng hỗ trợ</span>
+        <h1 id="supportTitle">Chăm sóc khách hàng</h1>
+        <p class="intro-copy">Liên hệ đội ngũ hỗ trợ nongsanviet qua thông tin bên dưới.</p>
+        <article class="support-card">
+          <span class="support-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13v-2a8 8 0 0 1 16 0v2"/><path d="M4 13a2 2 0 0 1 2-2h1v7H6a2 2 0 0 1-2-2v-3Zm16 0a2 2 0 0 0-2-2h-1v7h1a2 2 0 0 0 2-2v-3Zm0 3a5 5 0 0 1-5 5h-2"/></svg></span>
+          <div>
+            <span>Telegram / CSKH</span>
+            <strong><a href="https://t.me/anhkhoanguyen" target="_blank" rel="noopener noreferrer">@anhkhoanguyen ↗</a></strong>
+            <strong><a href="https://t.me/Sangvietcode" target="_blank" rel="noopener noreferrer">@Sangvietcode ↗</a></strong>
+            <p class="support-copy">Nhấn vào một trong hai tên tài khoản để mở Telegram và liên hệ hỗ trợ.</p>
+          </div>
+        </article>
+      </section>
+      <p class="disclaimer" data-page="home">Số dư, gói tham gia và điểm nhiệm vụ được quản lý trên máy chủ. Điểm không phải tiền mặt; không có cam kết lợi nhuận.</p>
+    </main>
+  </div>
+
+  <nav class="mobile-nav" aria-label="Điều hướng di động">
+    <a class="active" href="#tong-quan" data-nav="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></svg>Trang chủ</a>
+    <a href="#cskh" data-nav="support" data-support-link><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13v-2a8 8 0 0 1 16 0v2"/><path d="M4 13a2 2 0 0 1 2-2h1v7H6a2 2 0 0 1-2-2v-3Zm16 0a2 2 0 0 0-2-2h-1v7h1a2 2 0 0 0 2-2v-3Zm0 3a5 5 0 0 1-5 5h-2"/></svg>CSKH</a>
+    <button type="button" data-open-modal="deposit" aria-label="Nạp điểm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14m-7-7h14"/></svg>Nạp</button>
+    <button type="button" data-open-modal="withdraw" aria-label="Rút điểm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 12h14"/></svg>Rút</button>
+    <a href="#nhiem-vu" data-nav="tasks"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 21s-8-4.4-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 6.6-8 11-8 11Z"/></svg>Nhiệm vụ</a>
+    <a href="#vi-diem" data-nav="personal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 9h18m-5 5h2"/></svg>Cá nhân</a>
+  </nav>
+
+  <div class="modal-backdrop" id="modalBackdrop" role="presentation">
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-head">
+        <div><span class="eyebrow" id="modalEyebrow">Tài khoản điểm</span><h2 id="modalTitle">Nạp điểm</h2></div>
+        <button class="close-button" id="closeModal" aria-label="Đóng"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m18 6-12 12M6 6l12 12"/></svg></button>
+      </div>
+      <p class="modal-copy" id="modalCopy">Nhập số điểm cần giao dịch.</p>
+      <form id="pointsForm" novalidate>
+        <div class="modal-field" id="amountField"><label for="pointsAmount" id="amountLabel">Số tiền nạp (VND)</label><div class="input-wrap"><input id="pointsAmount" name="amount" type="number" min="80000" step="10000" placeholder="Tối thiểu 80000" required><span class="currency-suffix" id="amountSuffix">₫</span></div></div>
+        <div id="withdrawDetails" hidden>
+          <div class="modal-field"><label for="withdrawBank">Ngân hàng nhận tiền</label><input id="withdrawBank" name="bankName" type="text" autocomplete="off" placeholder="Ví dụ: Vietcombank"></div>
+          <div class="modal-field"><label for="withdrawAccount">Số tài khoản nhận tiền</label><input id="withdrawAccount" name="bankAccountNumber" type="text" inputmode="numeric" autocomplete="off" placeholder="Nhập số tài khoản"></div>
+          <div class="modal-field"><label for="withdrawAccountName">Tên chủ tài khoản</label><input id="withdrawAccountName" name="bankAccountName" type="text" autocomplete="off" placeholder="Tên không dấu như tại ngân hàng"></div>
+          <p class="modal-note" id="bankDetailsStatus" role="status" aria-live="polite">Thông tin sẽ được mã hóa và lưu cho lần rút tiếp theo.</p>
+          <button class="button button-outline" id="saveBankDetails" type="button">Lưu thông tin ngân hàng</button>
+        </div>
+        <div class="modal-note" id="withdrawRequirement" role="status" aria-live="polite" hidden></div>
+        <div class="modal-note" id="withdrawFeeSummary" role="status" aria-live="polite" hidden></div>
+        <div class="modal-note" id="modalNote">Mỗi 1 VNĐ tương ứng 1 điểm. Giao dịch được bảo mật và xác thực tự động trên hệ thống.</div>
+        <button class="button button-primary modal-submit" id="submitPoints" type="submit">Xác nhận nạp điểm</button>
+        <section class="payment-order" id="paymentOrder" aria-live="polite" hidden>
+          <img id="paymentQr" alt="Mã QR thanh toán cho đơn nạp điểm">
+          <p>Số tiền: <strong id="paymentAmount"></strong></p>
+          <p>Nội dung chuyển khoản: <strong id="paymentReference"></strong></p>
+          <p id="paymentExpiry"></p>
+          <p class="payment-status" id="paymentStatus" role="status">Đang chờ thanh toán...</p>
+        </section>
+      </form>
+    </section>
+  </div>
+  <div class="modal-backdrop" id="authBackdrop" role="presentation">
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+      <div class="modal-head">
+        <div><span class="eyebrow">Chào mừng bạn</span><h2 id="authTitle">Đăng nhập</h2></div>
+        <button class="close-button" id="closeAuth" aria-label="Đóng"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m18 6-12 12M6 6l12 12"/></svg></button>
+      </div>
+      <div class="auth-tabs" role="tablist" aria-label="Chọn đăng nhập hoặc đăng ký">
+        <button class="auth-tab active" type="button" role="tab" aria-selected="true" data-auth-mode="login">Đăng nhập</button>
+        <button class="auth-tab" type="button" role="tab" aria-selected="false" data-auth-mode="register">Đăng ký tài khoản</button>
+      </div>
+      <p class="modal-copy" id="authCopy">Đăng nhập để quản lý tài khoản của bạn.</p>
+      <form id="authForm">
+        <div class="modal-field" id="authNameField" hidden><label for="authName">Họ và tên</label><input id="authName" name="name" type="text" autocomplete="name" placeholder="Tên của bạn" required></div>
+        <div class="modal-field" id="authUsernameField"><label for="authUsername">Tên người dùng</label><input id="authUsername" name="username" type="text" autocomplete="username" minlength="3" maxlength="20" pattern="[A-Za-z0-9._-]{3,20}" placeholder="Nhập tên người dùng" title="Dùng 3–20 ký tự: chữ, số, dấu chấm, gạch dưới hoặc gạch ngang." required></div>
+        <div class="modal-field" id="authEmailField" hidden><label for="authEmail">Email</label><input id="authEmail" name="email" type="email" autocomplete="email" placeholder="ban@email.com" required></div>
+        <div class="modal-field"><label for="authPassword">Mật khẩu</label><input id="authPassword" name="password" type="password" autocomplete="current-password" minlength="8" placeholder="Ít nhất 8 ký tự" required></div>
+        <div class="modal-field" id="authConfirmField" hidden><label for="authConfirmPassword">Nhập lại mật khẩu</label><input id="authConfirmPassword" name="confirmPassword" type="password" autocomplete="new-password" minlength="8" placeholder="Nhập lại mật khẩu" required></div>
+        <div class="modal-field" id="referrerCodeField" hidden><label for="referrerCodeInput">Mã người giới thiệu (không bắt buộc)</label><input id="referrerCodeInput" name="referrerCode" type="text" autocomplete="off" maxlength="24" placeholder="Nhập mã người mời"></div>
+        <div class="modal-note" id="authNote">Tài khoản và ví được lưu trên máy chủ.</div>
+        <button class="button button-primary modal-submit" id="authSubmit" type="submit">Đăng nhập</button>
+      </form>
+    </section>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <aside class="telegram-welcome" id="telegramWelcome" aria-labelledby="telegramWelcomeTitle" aria-live="polite" hidden>
+    <div class="telegram-welcome-head">
+      <div class="telegram-welcome-title">
+        <span class="telegram-welcome-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M21.7 4.3 18.5 20c-.2 1.1-.9 1.4-1.8.9l-5-3.7-2.4 2.3c-.3.3-.5.5-1 .5l.4-5.1 9.3-8.4c.4-.4-.1-.6-.6-.2L6 13.6l-4.9-1.5c-1.1-.3-1.1-1.1.2-1.6l19.1-7.4c.9-.3 1.7.2 1.3 1.2Z"/></svg></span>
+        <h2 id="telegramWelcomeTitle">Vào nhóm Nông Sản Việt</h2>
+      </div>
+      <button class="telegram-welcome-close" id="closeTelegramWelcome" type="button" aria-label="Đóng thông báo">×</button>
+    </div>
+    <p>Cập nhật tin tức và trò chuyện cùng cộng đồng trên Telegram.</p>
+    <a class="telegram-group-address" href="https://t.me/nongsanviet" target="_blank" rel="noopener noreferrer">t.me/nongsanviet</a>
+    <div class="telegram-welcome-actions">
+      <a class="button button-primary" id="telegramGroupLink" href="https://t.me/nongsanviet" target="_blank" rel="noopener noreferrer">Tham gia nhóm <span aria-hidden="true">→</span></a>
+      <button class="telegram-welcome-close" id="dismissTelegramWelcome" type="button">Để sau</button>
+    </div>
+  </aside>
+
+  <script>
+    const state = { balance: 0, invested: 0, activity: [], mode: "deposit", pendingProduct: null, pendingPurchaseRequestId: "", user: null };
+    const formatPoints = value => new Intl.NumberFormat("vi-VN").format(value);
+    const balanceValue = document.getElementById("balanceValue");
+    const investmentValue = document.getElementById("investmentValue");
+    const backdrop = document.getElementById("modalBackdrop");
+    const authBackdrop = document.getElementById("authBackdrop");
+    const form = document.getElementById("pointsForm");
+    const authForm = document.getElementById("authForm");
+    const authName = document.getElementById("authName");
+    const authUsername = document.getElementById("authUsername");
+    const authEmail = document.getElementById("authEmail");
+    const authConfirmPassword = document.getElementById("authConfirmPassword");
+    const authNameField = document.getElementById("authNameField");
+    const authUsernameField = document.getElementById("authUsernameField");
+    const authEmailField = document.getElementById("authEmailField");
+    const authConfirmField = document.getElementById("authConfirmField");
+    const referrerCodeField = document.getElementById("referrerCodeField");
+    const referrerCodeInput = document.getElementById("referrerCodeInput");
+    const authTitle = document.getElementById("authTitle");
+    const authCopy = document.getElementById("authCopy");
+    const authSubmit = document.getElementById("authSubmit");
+    const amountInput = document.getElementById("pointsAmount");
+    const amountLabel = document.getElementById("amountLabel");
+    const amountSuffix = document.getElementById("amountSuffix");
+    const amountField = document.getElementById("amountField");
+    const withdrawDetails = document.getElementById("withdrawDetails");
+    const withdrawRequirement = document.getElementById("withdrawRequirement");
+    const withdrawFeeSummary = document.getElementById("withdrawFeeSummary");
+    const paymentOrder = document.getElementById("paymentOrder");
+    const paymentQr = document.getElementById("paymentQr");
+    const paymentStatus = document.getElementById("paymentStatus");
+    const modalTitle = document.getElementById("modalTitle");
+    const modalCopy = document.getElementById("modalCopy");
+    const modalNote = document.getElementById("modalNote");
+    const submitButton = document.getElementById("submitPoints");
+    const toast = document.getElementById("toast");
+    let toastTimer;
+    let depositPollTimer;
+    const telegramWelcomeStorageKey = "nongsanviet.telegram.welcome.dismissed.v1";
+    const withdrawalFeeRate = 0.05;
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, character => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        "\"": "&quot;",
+        "'": "&#39;"
+      })[character]);
+    }
+
+    function formatActivityTime(value) {
+      const date = new Date(value);
+      return Number.isNaN(date.getTime()) ? value : date.toLocaleString("vi-VN");
+    }
+
+    function updateTotals() {
+      balanceValue.textContent = formatPoints(state.balance);
+      investmentValue.textContent = formatPoints(state.invested);
+      document.getElementById("walletBalanceValue").textContent = formatPoints(state.balance);
+      document.getElementById("walletInvestedValue").textContent = `${formatPoints(state.invested)} điểm`;
+      document.getElementById("walletTotalValue").textContent = `${formatPoints(state.balance + state.invested)} điểm`;
+      document.getElementById("topAccountBalance").textContent = formatPoints(state.balance);
+    }
+
+    function applyServerAccount(result) {
+      if (
+        !result ||
+        !result.user ||
+        typeof result.user.username !== "string" ||
+        !Number.isSafeInteger(result.balancePoints) ||
+        result.balancePoints < 0 ||
+        !Number.isSafeInteger(result.investedPoints) ||
+        result.investedPoints < 0 ||
+        !Array.isArray(result.activity)
+      ) {
+        throw new Error("Máy chủ trả về thông tin tài khoản không hợp lệ.");
+      }
+      state.user = result.user;
+      state.balance = result.balancePoints;
+      state.invested = result.investedPoints;
+      state.activity = result.activity;
+      updateTotals();
+      renderActivity();
+      updateUserProfile();
+    }
+
+    async function refreshServerAccount() {
+      const response = await fetch("/api/me", { credentials: "same-origin", headers: { "Accept": "application/json" } });
+      applyServerAccount(await readApiResponse(response));
+      await renderDailyRewards();
+    }
+
+    async function renderDailyRewards() {
+      const packageList = document.getElementById("dailyRewardPackages");
+      const button = document.getElementById("dailyRewardButton");
+      const status = document.getElementById("dailyRewardStatus");
+      if (!state.user) {
+        packageList.innerHTML = '<div class="empty-state">Đăng nhập để xem điểm nhiệm vụ đủ điều kiện.</div>';
+        document.getElementById("dailyRewardAmount").textContent = "0 điểm";
+        button.disabled = true;
+        status.textContent = "Điểm được tính và lưu trên máy chủ sau khi đăng nhập.";
+        return;
+      }
+      button.disabled = true;
+      try {
+        const response = await fetch("/api/daily-rewards", {
+          credentials: "same-origin",
+          headers: { "Accept": "application/json" }
+        });
+        const result = await readApiResponse(response);
+        if (
+          !Array.isArray(result.packages) ||
+          !Number.isSafeInteger(result.totalPoints) ||
+          typeof result.claimedToday !== "boolean"
+        ) {
+          throw new Error("Máy chủ trả về điểm nhiệm vụ không hợp lệ.");
+        }
+        packageList.innerHTML = result.packages.length
+          ? result.packages.map(item => `<div class="daily-reward-package"><span>${escapeHtml(item.name)} · còn ${item.daysRemaining} ngày</span><span>+${formatPoints(item.dailyPoints)} điểm/ngày</span></div>`).join("")
+          : '<div class="empty-state">Chưa có gói đủ điều kiện nhận điểm hôm nay.</div>';
+        document.getElementById("dailyRewardAmount").textContent = `${formatPoints(result.totalPoints)} điểm`;
+        button.disabled = !result.packages.length || result.claimedToday;
+        status.textContent = result.claimedToday
+          ? "Bạn đã nhận điểm nhiệm vụ hôm nay. Hãy quay lại vào ngày mai."
+          : result.packages.length
+            ? "Mỗi gói được tính 10% giá gói. Mỗi ngày chỉ nhận một lần."
+            : "Gói mới mua bắt đầu nhận từ ngày mai; thời gian nhận tối đa 30 ngày.";
+      } catch (error) {
+        packageList.innerHTML = '<div class="empty-state">Không tải được dữ liệu điểm nhiệm vụ từ máy chủ.</div>';
+        document.getElementById("dailyRewardAmount").textContent = "—";
+        status.textContent = error.message;
+      }
+    }
+
+    async function claimDailyReward() {
+      const button = document.getElementById("dailyRewardButton");
+      button.disabled = true;
+      try {
+        const response = await fetch("/api/daily-rewards/claim", {
+          method: "POST",
+          credentials: "same-origin",
+          headers: { "Content-Type": "application/json" },
+          body: "{}"
+        });
+        const result = await readApiResponse(response);
+        const amount = result.amount;
+        applyServerAccount(result);
+        await renderDailyRewards();
+        showToast(`Máy chủ đã cộng ${formatPoints(amount)} điểm nhiệm vụ vào ví.`);
+      } catch (error) {
+        showToast(`Chưa nhận được điểm: ${error.message}`);
+        await renderDailyRewards();
+      }
+    }
+
+    function updateUserProfile() {
+      const user = state.user;
+      const name = user ? user.name : "Khách tham quan";
+      const initials = name.trim().split(/\s+/).slice(-2).map(part => part[0]).join("").toUpperCase() || "KH";
+      document.querySelectorAll("#nguoi-dung .avatar").forEach(avatar => { avatar.textContent = initials; });
+      document.getElementById("topAccountAvatar").textContent = initials;
+      document.getElementById("topAccountUsername").textContent = user ? `@${user.username}` : "";
+      document.getElementById("topAccountSummary").hidden = !user;
+      document.querySelector(".auth-actions").hidden = Boolean(user);
+      document.getElementById("personalAccountActions").hidden = !user;
+      document.querySelector("#nguoi-dung .profile-info strong").textContent = name;
+      document.querySelector("#nguoi-dung .profile-info span").textContent = user ? "Tài khoản máy chủ" : "Chưa đăng nhập";
+      document.getElementById("memberName").textContent = name;
+      document.getElementById("memberUsername").textContent = user ? `@${user.username}` : "Chưa đăng ký";
+      document.getElementById("memberAccountId").textContent = user ? user.accountId : "Chưa đăng nhập";
+      document.getElementById("memberEmail").textContent = user ? user.email : "Chưa đăng nhập";
+      document.getElementById("memberReferrer").textContent = user && user.referrerCode ? user.referrerCode : "Chưa nhập";
+      document.getElementById("memberStatus").textContent = user ? "Đã đăng nhập" : "Chưa đăng nhập";
+      document.getElementById("myReferralCode").textContent = user ? createReferralLink(user.referralCode) : "Đăng ký để tạo link";
+      document.getElementById("copyReferralCode").disabled = !user;
+      const referralPoints = state.activity
+        .filter(item => item.type === "referral")
+        .reduce((total, item) => total + item.amount, 0);
+      document.getElementById("referralRewardValue").textContent = `${formatPoints(referralPoints)} điểm`;
+    }
+
+    function dismissTelegramWelcome() {
+      document.getElementById("telegramWelcome").hidden = true;
+      try {
+        localStorage.setItem(telegramWelcomeStorageKey, "1");
+      } catch (error) {
+        console.error("Không thể lưu lựa chọn đóng lời mời Telegram:", error);
+      }
+    }
+
+    function showTelegramWelcomeForNewVisitor() {
+      try {
+        if (localStorage.getItem(telegramWelcomeStorageKey)) return;
+      } catch (error) {
+        console.error("Không thể kiểm tra trạng thái lời mời Telegram:", error);
+      }
+      window.setTimeout(() => {
+        document.getElementById("telegramWelcome").hidden = false;
+      }, 700);
+    }
+
+    function createReferralCode() {
+      return `NSV${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
+    }
+
+    function createReferralLink(referralCode) {
+      const link = new URL("/", window.location.origin);
+      link.searchParams.set("ref", referralCode);
+      return link.href;
+    }
+
+    function prefillReferralFromLink() {
+      const referralCode = new URLSearchParams(window.location.search).get("ref");
+      if (!referralCode || !/^[A-Za-z0-9_-]{3,24}$/.test(referralCode)) return false;
+      referrerCodeInput.value = referralCode.toUpperCase();
+      return true;
+    }
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("visible");
+      window.clearTimeout(toastTimer);
+      toastTimer = window.setTimeout(() => toast.classList.remove("visible"), 3000);
+    }
+
+    function updateWithdrawalEligibility() {
+      if (!state.user) {
+        withdrawRequirement.textContent = "Vui lòng đăng nhập trước khi rút điểm.";
+        return false;
+      }
+      if (state.balance < 40000) {
+        withdrawRequirement.textContent = `Số dư khả dụng (${formatPoints(state.balance)} điểm) chưa đủ mức tối thiểu 40.000 điểm.`;
+        return false;
+      }
+      withdrawRequirement.textContent = "Tài khoản đủ điều kiện tạo lệnh rút. Phí rút cố định 5%.";
+      return true;
+    }
+
+    function getWithdrawalBreakdown(amount) {
+      const fee = Math.round(amount * withdrawalFeeRate);
+      return { amount, fee, net: amount - fee };
+    }
+
+    function updateWithdrawalFeeSummary() {
+      if (state.mode !== "withdraw") return;
+      const amount = Number(amountInput.value);
+      if (!Number.isSafeInteger(amount) || amount <= 0) {
+        withdrawFeeSummary.textContent = "Phí rút 5%. Nhập số điểm muốn rút để xem số điểm thực nhận.";
+        return;
+      }
+      const breakdown = getWithdrawalBreakdown(amount);
+      withdrawFeeSummary.textContent = `Phí rút 5%: ${formatPoints(breakdown.fee)} điểm · Trừ khỏi ví: ${formatPoints(breakdown.amount)} điểm · Số điểm thực nhận: ${formatPoints(breakdown.net)} VNĐ. Phí được làm tròn đến điểm gần nhất.`;
+    }
+
+    function getBankDetailsFromForm() {
+      const bankDetails = {
+        bankName: form.elements.bankName.value.trim(),
+        bankAccountNumber: form.elements.bankAccountNumber.value.trim(),
+        bankAccountName: form.elements.bankAccountName.value.trim()
+      };
+      if (
+        bankDetails.bankName.length < 2 ||
+        bankDetails.bankName.length > 100 ||
+        !/^[A-Za-z0-9 -]{5,34}$/.test(bankDetails.bankAccountNumber) ||
+        bankDetails.bankAccountName.length < 2 ||
+        bankDetails.bankAccountName.length > 100
+      ) {
+        throw new Error("Vui lòng kiểm tra tên ngân hàng, số tài khoản và tên chủ tài khoản.");
+      }
+      return bankDetails;
+    }
+
+    async function saveBankDetails(showSuccessToast = true) {
+      const status = document.getElementById("bankDetailsStatus");
+      const saveButton = document.getElementById("saveBankDetails");
+      const bankDetails = getBankDetailsFromForm();
+      saveButton.disabled = true;
+      status.textContent = "Đang mã hóa và lưu thông tin trên máy chủ...";
+      try {
+        const response = await fetch("/api/bank-details", {
+          method: "PUT",
+          credentials: "same-origin",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(bankDetails)
+        });
+        const result = await readApiResponse(response);
+        status.textContent = "Thông tin đã được mã hóa và lưu. Lần sau sẽ tự điền.";
+        if (showSuccessToast) showToast("Đã lưu thông tin ngân hàng an toàn trên máy chủ.");
+        return result.bankDetails;
+      } catch (error) {
+        status.textContent = `Chưa lưu được thông tin ngân hàng: ${error.message}`;
+        throw error;
+      } finally {
+        saveButton.disabled = false;
+      }
+    }
+
+    async function loadSavedBankDetails() {
+      const status = document.getElementById("bankDetailsStatus");
+      status.textContent = "Đang tải thông tin ngân hàng đã lưu...";
+      try {
+        const response = await fetch("/api/bank-details", {
+          credentials: "same-origin",
+          headers: { "Accept": "application/json" }
+        });
+        const result = await readApiResponse(response);
+        if (result.bankDetails) {
+          form.elements.bankName.value = result.bankDetails.bankName;
+          form.elements.bankAccountNumber.value = result.bankDetails.bankAccountNumber;
+          form.elements.bankAccountName.value = result.bankDetails.bankAccountName;
+          status.textContent = "Đã điền thông tin ngân hàng đã lưu. Có thể sửa rồi lưu lại.";
+        } else {
+          status.textContent = "Chưa có thông tin đã lưu. Hệ thống sẽ lưu thông tin này ở lần rút đầu tiên.";
+        }
+      } catch (error) {
+        status.textContent = `Không tải được thông tin đã lưu: ${error.message}`;
+      }
+    }
+
+    function openModal(mode, product) {
+      if ((mode === "deposit" || mode === "withdraw") && !state.user) {
+        openAuth("login");
+        showToast("Vui lòng đăng nhập để thực hiện giao dịch nạp / rút.");
+        return;
+      }
+      state.mode = mode;
+      state.pendingProduct = product || null;
+      state.pendingPurchaseRequestId = "";
+      const isInvest = mode === "invest";
+      const isWithdraw = mode === "withdraw";
+      const isDeposit = mode === "deposit";
+
+      submitButton.disabled = false;
+      modalTitle.textContent = isInvest ? `Tham gia ${product.name}` : isWithdraw ? "Rút điểm về ngân hàng" : "Nạp điểm qua QR (SePay)";
+      modalCopy.textContent = isInvest
+        ? `Bạn đang chọn mức tham gia ${formatPoints(product.price)} điểm cho danh mục ${product.name}.`
+        : isWithdraw
+          ? "Rút điểm trực tiếp về tài khoản ngân hàng của bạn (Tối thiểu 40.000 điểm)."
+          : "Nạp điểm tự động qua quét mã QR thanh toán (Tối thiểu 80.000 VNĐ).";
+      modalNote.textContent = isInvest
+        ? "Máy chủ sẽ kiểm tra số dư và ghi nhận gói tham gia vào tài khoản của bạn."
+        : isWithdraw
+          ? "Yêu cầu rút tiền sẽ được gửi lên hệ thống máy chủ để kiểm tra và duyệt."
+          : "Chuyển khoản đúng số tiền và nội dung hiển thị để hệ thống tự động cộng điểm.";
+
+      amountLabel.textContent = isInvest || isWithdraw ? "Số điểm" : "Số tiền nạp (VND)";
+      amountSuffix.textContent = isInvest || isWithdraw ? "điểm" : "₫";
+      
+      amountField.hidden = false;
+      withdrawDetails.hidden = !isWithdraw;
+      withdrawRequirement.hidden = !isWithdraw;
+      withdrawFeeSummary.hidden = !isWithdraw;
+
+      const bankInput = document.getElementById("withdrawBank");
+      const accountInput = document.getElementById("withdrawAccount");
+      const nameInput = document.getElementById("withdrawAccountName");
+      
+      bankInput.required = isWithdraw;
+      accountInput.required = isWithdraw;
+      nameInput.required = isWithdraw;
+
+      paymentOrder.hidden = true;
+      document.getElementById("pointsAmount").required = true;
+      submitButton.hidden = false;
+
+      amountInput.value = isInvest ? product.price : "";
+      amountInput.readOnly = isInvest;
+      amountInput.min = isInvest ? product.price : isWithdraw ? "40000" : "80000";
+      amountInput.step = isInvest ? product.price : isWithdraw ? "1" : "10000";
+
+      if (isWithdraw) updateWithdrawalFeeSummary();
+      submitButton.textContent = isInvest ? "Xác nhận tham gia" : isWithdraw ? "Xác nhận rút điểm" : "Tạo mã QR thanh toán";
+      
+      window.clearTimeout(depositPollTimer);
+      if (isWithdraw) updateWithdrawalEligibility();
+      backdrop.classList.add("open");
+      if (isWithdraw) loadSavedBankDetails();
+      window.setTimeout(() => amountInput.focus(), 50);
+    }
+
+    function closeModal() {
+      window.clearTimeout(depositPollTimer);
+      backdrop.classList.remove("open");
+      form.reset();
+      amountInput.readOnly = false;
+      paymentOrder.hidden = true;
+      amountField.hidden = false;
+      withdrawDetails.hidden = true;
+      withdrawRequirement.hidden = true;
+      withdrawFeeSummary.hidden = true;
+      document.getElementById("withdrawBank").required = false;
+      document.getElementById("withdrawAccount").required = false;
+      document.getElementById("withdrawAccountName").required = false;
+      submitButton.hidden = false;
+      document.getElementById("pointsAmount").required = true;
+      paymentQr.removeAttribute("src");
+      state.pendingProduct = null;
+    }
+
+    async function readApiResponse(response) {
+      let result;
+      try {
+        result = await response.json();
+      } catch {
+        if (!response.ok) {
+          throw new Error(`Máy chủ từ chối yêu cầu (${response.status}).`);
+        }
+        throw new Error("Máy chủ trả về phản hồi không hợp lệ.");
+      }
+      if (!response.ok) {
+        const error = new Error(typeof result.message === "string" ? result.message : `Máy chủ từ chối yêu cầu (${response.status}).`);
+        error.status = response.status;
+        throw error;
+      }
+      if (!result || typeof result !== "object" || Array.isArray(result)) {
+        throw new Error("Máy chủ trả về dữ liệu không hợp lệ.");
+      }
+      return result;
+    }
+
+    async function createDepositOrder(amount) {
+      submitButton.disabled = true;
+      submitButton.textContent = "Đang tạo mã thanh toán...";
+      try {
+        const response = await fetch("/api/deposits", {
+          method: "POST",
+          credentials: "same-origin",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ amountVnd: amount })
+        });
+        const result = await readApiResponse(response);
+        if (
+          typeof result.depositId !== "string" ||
+          !Number.isSafeInteger(result.amountVnd) ||
+          result.amountVnd !== amount ||
+          typeof result.transferContent !== "string" ||
+          typeof result.qrImageUrl !== "string" ||
+          result.status !== "pending"
+        ) {
+          throw new Error("Máy chủ trả về thông tin đơn nạp không hợp lệ.");
+        }
+        const qrUrl = new URL(result.qrImageUrl, window.location.origin);
+        if (qrUrl.protocol !== "https:" && qrUrl.origin !== window.location.origin) {
+          throw new Error("Địa chỉ mã QR không an toàn.");
+        }
+        paymentQr.src = qrUrl.href;
+        document.getElementById("paymentAmount").textContent = `${formatPoints(result.amountVnd)} ₫ (${formatPoints(result.amountVnd)} điểm)`;
+        document.getElementById("paymentReference").textContent = result.transferContent;
+        document.getElementById("paymentExpiry").textContent = result.expiresAt
+          ? `Hạn thanh toán: ${new Date(result.expiresAt).toLocaleString("vi-VN")}`
+          : "Chuyển khoản đúng số tiền và nội dung để được duyệt tự động.";
+        amountField.hidden = true;
+        submitButton.hidden = true;
+        paymentOrder.hidden = false;
+        paymentStatus.textContent = "Đang chờ SePay xác nhận thanh toán...";
+        pollDepositStatus(result.depositId, amount);
+      } catch (error) {
+        showToast(`Chưa tạo được đơn nạp: ${error.message}`);
+      } finally {
+        submitButton.disabled = false;
+        submitButton.textContent = "Tạo mã QR thanh toán";
+      }
+    }
+
+    async function pollDepositStatus(depositId, amount) {
+      try {
+        const response = await fetch(`/api/deposits/${encodeURIComponent(depositId)}`, {
+          credentials: "same-origin",
+          headers: { "Accept": "application/json" }
+        });
+        const result = await readApiResponse(response);
+        if (result.status === "paid") {
+          if (!Number.isSafeInteger(result.balancePoints) || result.balancePoints < 0) {
+            throw new Error("Máy chủ xác nhận thanh toán nhưng chưa trả về số dư hợp lệ.");
+          }
+          state.balance = result.balancePoints;
+          state.activity.unshift({ type: "deposit", amount, method: "VietQR · SePay", time: new Date().toISOString() });
+          updateTotals();
+          renderActivity();
+          paymentStatus.textContent = "SePay đã xác nhận! Điểm đã được cộng vào tài khoản.";
+          showToast(`Thanh toán thành công! Cộng ${formatPoints(amount)} điểm vào ví.`);
+          return;
+        }
+        if (result.status === "expired") {
+          paymentStatus.textContent = "Đơn nạp đã hết hạn. Hãy đóng cửa sổ và tạo đơn mới.";
+          return;
+        }
+        if (result.status !== "pending") {
+          throw new Error("Máy chủ trả về trạng thái giao dịch không hợp lệ.");
+        }
+        paymentStatus.textContent = "Đang chờ SePay xác nhận thanh toán...";
+      } catch (error) {
+        paymentStatus.textContent = `Chưa kiểm tra được trạng thái: ${error.message}`;
+      }
+      if (backdrop.classList.contains("open") && state.mode === "deposit") {
+        depositPollTimer = window.setTimeout(() => pollDepositStatus(depositId, amount), 5000);
+      }
+    }
+
+    async function createWithdrawalRequest(amount) {
+      submitButton.disabled = true;
+      submitButton.textContent = "Đang gửi yêu cầu rút...";
+      const expectedBreakdown = getWithdrawalBreakdown(amount);
+      try {
+        await saveBankDetails(false);
+        const response = await fetch("/api/withdrawals", {
+          method: "POST",
+          credentials: "same-origin",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            amountPoints: amount,
+            bankName: form.elements.bankName.value.trim(),
+            bankAccountNumber: form.elements.bankAccountNumber.value.trim(),
+            bankAccountName: form.elements.bankAccountName.value.trim()
+          })
+        });
+        const result = await readApiResponse(response);
+        if (
+          typeof result.withdrawalId !== "string" ||
+          result.status !== "pending" ||
+          !Number.isSafeInteger(result.balancePoints) ||
+          result.balancePoints < 0
+        ) {
+          throw new Error("Máy chủ phản hồi yêu cầu rút không thành công.");
+        }
+        state.balance = result.balancePoints;
+        state.activity.unshift({
+          type: "withdraw",
+          amount,
+          method: `Chờ duyệt · Phí ${formatPoints(expectedBreakdown.fee)} điểm · Thực nhận ${formatPoints(expectedBreakdown.net)} VNĐ`,
+          time: new Date().toISOString()
+        });
+        updateTotals();
+        renderActivity();
+        closeModal();
+        showToast(`Đã gửi yêu cầu rút thành công! Thực nhận dự kiến ${formatPoints(expectedBreakdown.net)} VNĐ (chờ admin duyệt).`);
+      } catch (error) {
+        showToast(`Chưa gửi được yêu cầu rút: ${error.message}`);
+      } finally {
+        submitButton.disabled = false;
+        submitButton.textContent = "Xác nhận rút điểm";
+      }
+    }
+
+    function setAuthMode(mode) {
+      const isRegister = mode === "register";
+      authTitle.textContent = isRegister ? "Tạo tài khoản" : "Đăng nhập";
+      authCopy.textContent = isRegister
+        ? "Tạo tài khoản trên máy chủ và nhận 20.000 điểm thưởng."
+        : "Đăng nhập để xem số dư và lịch sử được lưu trên máy chủ.";
+      document.getElementById("authNote").textContent = isRegister
+        ? "Tài khoản và thông tin ví được bảo mật trên máy chủ hệ thống."
+        : "Mật khẩu được xác thực trên máy chủ; phiên đăng nhập được lưu bằng cookie bảo mật.";
+      authSubmit.textContent = isRegister ? "Tạo tài khoản" : "Đăng nhập";
+      authNameField.hidden = !isRegister;
+      authUsernameField.hidden = false;
+      authEmailField.hidden = !isRegister;
+      authConfirmField.hidden = !isRegister;
+      referrerCodeField.hidden = !isRegister;
+      authName.required = isRegister;
+      authUsername.required = true;
+      authEmail.required = isRegister;
+      authConfirmPassword.required = isRegister;
+      document.getElementById("authPassword").autocomplete = isRegister ? "new-password" : "current-password";
+      authUsername.placeholder = isRegister ? "Ví dụ: minhnguyen01" : "Nhập tên người dùng";
+      document.querySelectorAll("[data-auth-mode]").forEach(tab => {
+        const selected = tab.dataset.authMode === mode;
+        tab.classList.toggle("active", selected);
+        tab.setAttribute("aria-selected", String(selected));
+      });
+    }
+
+    function openAuth(mode) {
+      setAuthMode(mode);
+      authBackdrop.classList.add("open");
+      window.setTimeout(() => authUsername.focus(), 50);
+    }
+
+    function closeAuth() {
+      authBackdrop.classList.remove("open");
+      authForm.reset();
+    }
+
+    function renderActivity() {
+      const list = document.getElementById("activityList");
+      const walletList = document.getElementById("walletActivityList");
+      document.getElementById("activityCount").textContent = `${state.activity.length} hoạt động`;
+      document.getElementById("walletActivityCount").textContent = `${state.activity.length} giao dịch`;
+      if (!state.activity.length) {
+        list.innerHTML = '<div class="empty-state">Chưa có hoạt động nào. Hãy bắt đầu với một danh mục nông sản nhé.</div>';
+        walletList.innerHTML = '<div class="empty-state">Giao dịch nạp, rút hoặc đầu tư sẽ hiển thị tại đây.</div>';
+        return;
+      }
+      const renderItem = item => {
+        const isBonus = item.type === "bonus";
+        const isReferral = item.type === "referral";
+        const isDailyReward = item.type === "dailyReward";
+        const isPositive = item.type === "deposit" || isBonus || isReferral || isDailyReward;
+        const isInvest = item.type === "invest";
+        const icon = isPositive
+          ? '<path d="M12 5v14m-7-7h14"/>'
+          : isInvest
+            ? '<path d="M12 21s-8-4.4-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 6.6-8 11-8 11Z"/>'
+            : '<path d="M5 12h14"/>';
+        const label = isBonus
+          ? "Thưởng tạo tài khoản"
+          : isReferral
+            ? "Thưởng giới thiệu"
+            : isDailyReward
+              ? "Nhận điểm nhiệm vụ"
+            : item.type === "deposit"
+              ? "Nạp điểm qua QR"
+              : isInvest
+                ? `Tham gia ${item.name}`
+                : "Rút điểm về ngân hàng";
+        const amountPrefix = isPositive ? "+" : "−";
+        const iconClass = isPositive ? "" : item.type === "withdraw" ? " withdraw" : "";
+        const amountClass = isPositive ? "positive" : "negative";
+        return `<div class="activity-item"><div class="activity-icon${iconClass}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${icon}</svg></div><div class="activity-info"><strong>${escapeHtml(label)}</strong><span>${escapeHtml(formatActivityTime(item.time))}${item.method ? ` · ${escapeHtml(item.method)}` : ""}</span></div><div class="activity-amount ${amountClass}">${amountPrefix}${formatPoints(item.amount)} điểm</div></div>`;
+      };
+      list.innerHTML = state.activity.slice(0, 4).map(renderItem).join("");
+      walletList.innerHTML = state.activity.map(renderItem).join("");
+    }
+
+    updateTotals();
+    renderActivity();
+    updateUserProfile();
+    renderDailyRewards();
+    if (location.protocol === "file:") {
+      showToast("Hãy mở trang bằng địa chỉ website trên máy chủ, không mở tệp HTML trực tiếp.");
+    } else {
+      refreshServerAccount().catch(error => {
+        if (error.status !== 401) {
+          console.error("Không thể tải tài khoản từ máy chủ:", error);
+          showToast(`Chưa kết nối được máy chủ: ${error.message}`);
+        }
+      });
+    }
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden) renderDailyRewards();
+    });
+
+    document.querySelectorAll("[data-open-modal]").forEach(button => {
+      button.addEventListener("click", () => openModal(button.dataset.openModal));
+    });
+    document.getElementById("topAccountSummary").addEventListener("click", () => showPage("personal"));
+    document.getElementById("logoutButton").addEventListener("click", async () => {
+      try {
+        await readApiResponse(await fetch("/api/logout", {
+          method: "POST",
+          credentials: "same-origin"
+        }));
+        state.user = null;
+        state.balance = 0;
+        state.invested = 0;
+        state.activity = [];
+        updateUserProfile();
+        updateTotals();
+        renderActivity();
+        await renderDailyRewards();
+        showPage("home");
+        showToast("Đã đăng xuất.");
+      } catch (error) {
+        showToast(`Chưa đăng xuất được: ${error.message}`);
+      }
+    });
+    function showPage(page) {
+      document.querySelectorAll("[data-page]").forEach(section => {
+        section.hidden = section.dataset.page !== page;
+      });
+      document.querySelectorAll("[data-nav]").forEach(item => {
+        const selected = item.dataset.nav === page;
+        item.classList.toggle("active", selected);
+        if (selected) item.setAttribute("aria-current", "page");
+        else item.removeAttribute("aria-current");
+      });
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    document.querySelectorAll("[data-nav]").forEach(link => {
+      link.addEventListener("click", event => {
+        event.preventDefault();
+        showPage(link.dataset.nav);
+      });
+    });
+    document.querySelectorAll("[data-open-page]").forEach(link => {
+      link.addEventListener("click", event => {
+        event.preventDefault();
+        showPage(link.dataset.openPage);
+      });
+    });
+    document.querySelectorAll("[data-invest]").forEach(button => {
+      button.addEventListener("click", () => {
+        if (!state.user) {
+          openAuth("login");
+          showToast("Đăng nhập để tham gia gói.");
+          return;
+        }
+        const card = button.closest(".product-card");
+        openModal("invest", { name: card.dataset.product, price: Number(card.dataset.price) });
+      });
+    });
+    document.getElementById("dailyRewardButton").addEventListener("click", claimDailyReward);
+    document.getElementById("saveBankDetails").addEventListener("click", async () => {
+      try {
+        await saveBankDetails();
+      } catch (error) {
+        showToast(`Chưa lưu được thông tin ngân hàng: ${error.message}`);
+      }
+    });
+    document.getElementById("closeModal").addEventListener("click", closeModal);
+    backdrop.addEventListener("click", event => { if (event.target === backdrop) closeModal(); });
+    document.getElementById("closeAuth").addEventListener("click", closeAuth);
+    authBackdrop.addEventListener("click", event => { if (event.target === authBackdrop) closeAuth(); });
+    document.getElementById("closeTelegramWelcome").addEventListener("click", dismissTelegramWelcome);
+    document.getElementById("dismissTelegramWelcome").addEventListener("click", dismissTelegramWelcome);
+    document.getElementById("telegramGroupLink").addEventListener("click", dismissTelegramWelcome);
+    showTelegramWelcomeForNewVisitor();
+    document.querySelectorAll("[data-open-auth]").forEach(button => button.addEventListener("click", () => openAuth(button.dataset.openAuth)));
+    document.querySelectorAll("[data-auth-mode]").forEach(button => button.addEventListener("click", () => setAuthMode(button.dataset.authMode)));
+    document.getElementById("copyReferralCode").addEventListener("click", async () => {
+      if (!state.user) {
+        showToast("Đăng ký để tạo mã giới thiệu.");
+        return;
+      }
+      if (!navigator.clipboard || !navigator.clipboard.writeText) {
+        showToast(createReferralLink(state.user.referralCode));
+        return;
+      }
+      try {
+        await navigator.clipboard.writeText(createReferralLink(state.user.referralCode));
+        showToast("Đã sao chép link giới thiệu.");
+      } catch (error) {
+        showToast("Không thể sao chép tự động. Link của bạn: " + createReferralLink(state.user.referralCode));
+      }
+    });
+    document.addEventListener("keydown", event => {
+      if (event.key !== "Escape") return;
+      if (authBackdrop.classList.contains("open")) closeAuth();
+      if (backdrop.classList.contains("open")) closeModal();
+    });
+    document.getElementById("notificationButton").addEventListener("click", () => showToast("Bạn chưa có thông báo mới."));
+    document.querySelectorAll("[data-profile-link]").forEach(link => link.addEventListener("click", event => {
+      event.preventDefault();
+      openAuth("login");
+    }));
+
+    if (prefillReferralFromLink()) {
+      openAuth("register");
+    }
+
+    authForm.addEventListener("submit", async event => {
+      event.preventDefault();
+      const isRegister = authNameField.hidden === false;
+      const username = authUsername.value.trim();
+      const password = authForm.elements.password.value;
+      if (password.length < 8) {
+        showToast("Mật khẩu cần có ít nhất 8 ký tự.");
+        return;
+      }
+      if (isRegister && password !== authForm.elements.confirmPassword.value) {
+        showToast("Mật khẩu nhập lại chưa khớp.");
+        return;
+      }
+      authSubmit.disabled = true;
+      authSubmit.textContent = isRegister ? "Đang tạo tài khoản..." : "Đang đăng nhập...";
+      try {
+        const response = await fetch(isRegister ? "/api/register" : "/api/login", {
+          method: "POST",
+          credentials: "same-origin",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: isRegister ? authName.value.trim() : undefined,
+            username,
+            email: isRegister ? authEmail.value.trim() : undefined,
+            password,
+            referrerCode: isRegister ? referrerCodeInput.value.trim() : undefined
+          })
+        });
+        const result = await readApiResponse(response);
+        applyServerAccount(result);
+        await renderDailyRewards();
+        closeAuth();
+        showPage("personal");
+        showToast(isRegister
+          ? "Đã tạo tài khoản trên máy chủ và cộng 20.000 điểm thưởng."
+          : "Đã đăng nhập. Số dư được tải từ máy chủ.");
+      } catch (error) {
+        showToast(`${isRegister ? "Chưa tạo được tài khoản" : "Chưa đăng nhập được"}: ${error.message}`);
+      } finally {
+        authSubmit.disabled = false;
+        authSubmit.textContent = isRegister ? "Tạo tài khoản" : "Đăng nhập";
+      }
+    });
+
+    async function createPackageParticipation(product, amount) {
+      submitButton.disabled = true;
+      submitButton.textContent = "Đang xử lý trên máy chủ...";
+      try {
+        state.pendingPurchaseRequestId = state.pendingPurchaseRequestId || (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()));
+        const response = await fetch("/api/packages/purchase", {
+          method: "POST",
+          credentials: "same-origin",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            productName: product.name,
+            amountPoints: amount,
+            requestId: state.pendingPurchaseRequestId
+          })
+        });
+        const result = await readApiResponse(response);
+        applyServerAccount(result);
+        await renderDailyRewards();
+        closeModal();
+        const referralMessage = result.referralReward
+          ? ` Người giới thiệu được cộng ${formatPoints(result.referralReward)} điểm.`
+          : "";
+        showToast(`Đã tham gia ${product.name}; số dư còn ${formatPoints(result.balancePoints)} điểm.${referralMessage}`);
+      } catch (error) {
+        showToast(`Chưa tham gia được gói: ${error.message}`);
+      } finally {
+        submitButton.disabled = false;
+        submitButton.textContent = "Xác nhận tham gia";
+      }
+    }
+
+    form.addEventListener("submit", async event => {
+      event.preventDefault();
+      if (state.mode === "withdraw" && !updateWithdrawalEligibility()) {
+        showToast("Số dư không đủ hoặc chưa đăng nhập.");
+        return;
+      }
+      const amount = Number(amountInput.value);
+      if (!Number.isSafeInteger(amount) || amount <= 0) {
+        showToast(state.mode === "deposit" ? "Vui lòng nhập số tiền VND hợp lệ." : "Vui lòng nhập số điểm hợp lệ.");
+        return;
+      }
+      if (state.mode === "deposit") {
+        if (amount < 80000) {
+          showToast("Số tiền nạp tối thiểu là 80.000 VND.");
+          return;
+        }
+        await createDepositOrder(amount);
+        return;
+      } else if (state.mode === "withdraw") {
+        if (amount < 40000) {
+          showToast("Số điểm rút tối thiểu là 40.000 điểm.");
+          return;
+        }
+        if (
+          !form.elements.bankName.value.trim() ||
+          !form.elements.bankAccountNumber.value.trim() ||
+          !form.elements.bankAccountName.value.trim()
+        ) {
+          showToast("Vui lòng điền đủ ngân hàng, số tài khoản và tên chủ tài khoản nhận tiền.");
+          return;
+        }
+        await createWithdrawalRequest(amount);
+        return;
+      } else {
+        const product = state.pendingProduct;
+        if (!product || amount !== product.price) {
+          showToast("Mức điểm tham gia không hợp lệ.");
+          return;
+        }
+        if (!state.user) {
+          showToast("Vui lòng đăng nhập trước khi tham gia gói.");
+          return;
+        }
+        await createPackageParticipation(product, amount);
+        return;
+      }
+    });
+
+    amountInput.addEventListener("input", updateWithdrawalFeeSummary);
+  </script>
+</body>
+</html>"""
