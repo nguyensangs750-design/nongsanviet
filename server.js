@@ -783,7 +783,6 @@ app.post('/api/withdrawals', requireAuth, async (req, res) => {
         }
         const encryptedBankDetails = encryptBankDetails(bankDetails, userId);
 
-        // 1. Kiểm tra máy chủ: Đã từng nạp tiền hay chưa
         const depositCheck = await pool.query(
             "SELECT 1 FROM wallet_ledger WHERE user_id = $1 AND type = 'deposit' LIMIT 1",
             [userId]
@@ -795,7 +794,6 @@ app.post('/api/withdrawals', requireAuth, async (req, res) => {
             });
         }
 
-        // 2. Kiểm tra máy chủ: Đã từng mua gói nông sản hay chưa
         const packageCheck = await pool.query(
             "SELECT 1 FROM package_participations WHERE user_id = $1 LIMIT 1",
             [userId]
@@ -871,86 +869,3 @@ app.post('/api/withdrawals', requireAuth, async (req, res) => {
 
 app.get('/api/admin/withdrawals', requireAdmin, async (req, res) => {
     try {
-        const result = await pool.query(`
-            SELECT w.id, w.user_id, u.name, u.email, w.amount, w.status,
-                   w.bank_name, w.bank_account_number, w.bank_account_name,
-                   w.bank_details_ciphertext, w.bank_details_iv, w.bank_details_tag,
-                   w.created_at 
-            FROM withdrawals w 
-            JOIN users u ON w.user_id = u.id 
-            ORDER BY w.created_at DESC
-        `);
-        const data = result.rows.map(row => {
-            const details = row.bank_details_ciphertext
-                ? decryptBankDetails({
-                    ciphertext: row.bank_details_ciphertext,
-                    iv: row.bank_details_iv,
-                    tag: row.bank_details_tag
-                }, row.user_id)
-                : {
-                    bankName: row.bank_name,
-                    bankAccountNumber: row.bank_account_number,
-                    bankAccountName: row.bank_account_name
-                };
-            return {
-                id: row.id,
-                name: row.name,
-                email: row.email,
-                amount: row.amount,
-                status: row.status,
-                ...details,
-                created_at: row.created_at
-            };
-        });
-        return res.json({ success: true, data });
-    } catch (error) {
-        console.error('Lỗi lấy danh sách rút tiền:', error);
-        return res.status(500).json({ success: false, message: 'Không thể tải danh sách yêu cầu rút.' });
-    }
-});
-
-app.post('/api/admin/withdrawals/:id', requireAdmin, async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { action } = req.body || {};
-
-        if (!['approved', 'rejected'].includes(action)) {
-            return res.status(400).json({ success: false, message: 'Hành động không hợp lệ!' });
-        }
-
-        await withTransaction(async client => {
-            const wResult = await client.query('SELECT * FROM withdrawals WHERE id = $1 FOR UPDATE', [id]);
-            if (!wResult.rows.length) {
-                throw Object.assign(new Error('Không tìm thấy yêu cầu rút tiền!'), { statusCode: 404 });
-            }
-
-            const withdrawal = wResult.rows[0];
-            if (withdrawal.status !== 'pending') {
-                throw Object.assign(new Error('Yêu cầu này đã được xử lý trước đó!'), { statusCode: 400 });
-            }
-
-            if (action === 'rejected') {
-                await client.query('UPDATE users SET balance = balance + $1 WHERE id = $2', [withdrawal.amount, withdrawal.user_id]);
-                await client.query(
-                    `INSERT INTO wallet_ledger (user_id, type, points_delta, method)
-                     VALUES ($1, 'refund', $2, 'Hoàn điểm do đơn rút bị từ chối')`,
-                    [withdrawal.user_id, withdrawal.amount]
-                );
-            }
-
-            await client.query('UPDATE withdrawals SET status = $1 WHERE id = $2', [action, id]);
-        });
-
-        return res.json({ success: true, message: `Đã cập nhật trạng thái đơn thành: ${action}` });
-
-    } catch (error) {
-        if (error.statusCode) return res.status(error.statusCode).json({ success: false, message: error.message });
-        console.error('Lỗi xử lý duyệt đơn:', error);
-        return res.status(500).json({ success: false, message: error.message });
-    }
-});
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Máy chủ đang chạy tại cổng ${PORT}.`);
-});
