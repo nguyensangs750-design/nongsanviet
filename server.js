@@ -974,7 +974,7 @@ app.post('/api/admin/withdrawals/:id/reject', requireAdmin, async (req, res) => 
 
         return res.json({ success: true, message: `Đã từ chối và hoàn điểm cho yêu cầu WD_${withdrawalId}.` });
     } catch (error) {
-        if (error.statusCode) return res.status(40.statusCode).json({ success: false, message: error.message });
+        if (error.statusCode) return res.status(error.statusCode).json({ success: false, message: error.message });
         console.error('Lỗi từ chối rút tiền:', error);
         return res.status(500).json({ success: false, message: 'Không thể từ chối yêu cầu rút tiền.' });
     }
