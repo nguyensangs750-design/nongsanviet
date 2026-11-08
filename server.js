@@ -868,4 +868,125 @@ app.post('/api/withdrawals', requireAuth, async (req, res) => {
 });
 
 app.get('/api/admin/withdrawals', requireAdmin, async (req, res) => {
-try {
+    try {
+        const result = await pool.query(`
+            SELECT w.id, w.user_id, w.amount, w.status, w.created_at,
+                   u.username, u.name,
+                   w.bank_details_ciphertext, w.bank_details_iv, w.bank_details_tag
+            FROM withdrawals w
+            JOIN users u ON u.id = w.user_id
+            WHERE w.status = 'pending'
+            ORDER BY w.created_at ASC
+        `);
+
+        const withdrawals = result.rows.map(row => {
+            let bankDetails = { bankName: '', bankAccountNumber: '', bankAccountName: '' };
+            try {
+                if (row.bank_details_ciphertext && row.bank_details_iv && row.bank_details_tag) {
+                    bankDetails = decryptBankDetails({
+                        ciphertext: row.bank_details_ciphertext,
+                        iv: row.bank_details_iv,
+                        tag: row.bank_details_tag
+                    }, row.user_id);
+                }
+            } catch (e) {
+                console.error(`Không thể giải mã ngân hàng cho WD_${row.id}:`, e.message);
+            }
+
+            return {
+                withdrawalId: `WD_${row.id}`,
+                userId: row.user_id,
+                username: row.username,
+                name: row.name,
+                amount: Number(row.amount),
+                bankName: bankDetails.bankName,
+                bankAccountNumber: bankDetails.bankAccountNumber,
+                bankAccountName: bankDetails.bankAccountName,
+                createdAt: row.created_at.toISOString()
+            };
+        });
+
+        return res.json({ success: true, withdrawals });
+    } catch (error) {
+        console.error('Lỗi lấy danh sách rút tiền:', error);
+        return res.status(500).json({ success: false, message: 'Không thể tải danh sách rút tiền.' });
+    }
+});
+
+app.post('/api/admin/withdrawals/:id/approve', requireAdmin, async (req, res) => {
+    try {
+        const rawId = req.params.id.replace(/^WD_/i, '');
+        const withdrawalId = Number(rawId);
+        if (!Number.isSafeInteger(withdrawalId) || withdrawalId <= 0) {
+            return res.status(400).json({ success: false, message: 'Mã rút tiền không hợp lệ.' });
+        }
+
+        await withTransaction(async client => {
+            const wd = await client.query(
+                "SELECT id, user_id, amount, status FROM withdrawals WHERE id = $1 FOR UPDATE",
+                [withdrawalId]
+            );
+            if (!wd.rows.length) throw Object.assign(new Error('Không tìm thấy yêu cầu rút tiền.'), { statusCode: 404 });
+            if (wd.rows[0].status !== 'pending') {
+                throw Object.assign(new Error('Yêu cầu này đã được xử lý trước đó.'), { statusCode: 400 });
+            }
+
+            await client.query("UPDATE withdrawals SET status = 'approved' WHERE id = $1", [withdrawalId]);
+        });
+
+        return res.json({ success: true, message: `Đã duyệt yêu cầu rút tiền WD_${withdrawalId}.` });
+    } catch (error) {
+        if (error.statusCode) return res.status(error.statusCode).json({ success: false, message: error.message });
+        console.error('Lỗi duyệt rút tiền:', error);
+        return res.status(500).json({ success: false, message: 'Không thể duyệt yêu cầu rút tiền.' });
+    }
+});
+
+app.post('/api/admin/withdrawals/:id/reject', requireAdmin, async (req, res) => {
+    try {
+        const rawId = req.params.id.replace(/^WD_/i, '');
+        const withdrawalId = Number(rawId);
+        if (!Number.isSafeInteger(withdrawalId) || withdrawalId <= 0) {
+            return res.status(400).json({ success: false, message: 'Mã rút tiền không hợp lệ.' });
+        }
+
+        await withTransaction(async client => {
+            const wd = await client.query(
+                "SELECT id, user_id, amount, status FROM withdrawals WHERE id = $1 FOR UPDATE",
+                [withdrawalId]
+            );
+            if (!wd.rows.length) throw Object.assign(new Error('Không tìm thấy yêu cầu rút tiền.'), { statusCode: 404 });
+            if (wd.rows[0].status !== 'pending') {
+                throw Object.assign(new Error('Yêu cầu này đã được xử lý trước đó.'), { statusCode: 400 });
+            }
+
+            const userId = wd.rows[0].user_id;
+            const amount = Number(wd.rows[0].amount);
+
+            await client.query("UPDATE withdrawals SET status = 'rejected' WHERE id = $1", [withdrawalId]);
+            await client.query("UPDATE users SET balance = balance + $1 WHERE id = $2", [amount, userId]);
+            await client.query(
+                `INSERT INTO wallet_ledger (user_id, type, points_delta, method)
+                 VALUES ($1, 'withdraw_refund', $2, 'Hoàn tiền do từ chối rút')`,
+                [userId, amount]
+            );
+        });
+
+        return res.json({ success: true, message: `Đã từ chối và hoàn điểm cho yêu cầu WD_${withdrawalId}.` });
+    } catch (error) {
+        if (error.statusCode) return res.status(error.statusCode).json({ success: false, message: error.message });
+        console.error('Lỗi từ chối rút tiền:', error);
+        return res.status(500).json({ success: false, message: 'Không thể từ chối yêu cầu rút tiền.' });
+    }
+});
+
+// Khởi động server cục bộ nếu chạy môi trường dev
+if (process.env.NODE_ENV !== 'production') {
+    const PORT = process.env.PORT || 3000;
+    app.listen(PORT, () => {
+        console.log(`Server is running on port ${PORT}`);
+    });
+}
+
+// BẮT BUỘC PHẢI CÓ ĐỂ VERCEL NHẬN DIỆN ỨNG DỤNG EXPRESS
+module.exports = app;
