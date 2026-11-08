@@ -974,10 +974,126 @@ app.post('/api/admin/withdrawals/:id/reject', requireAdmin, async (req, res) => 
 
         return res.json({ success: true, message: `Đã từ chối và hoàn điểm cho yêu cầu WD_${withdrawalId}.` });
     } catch (error) {
-        if (error.statusCode) return res.status(error.statusCode).json({ success: false, message: error.message });
+        if (error.statusCode) return res.status(40.statusCode).json({ success: false, message: error.message });
         console.error('Lỗi từ chối rút tiền:', error);
         return res.status(500).json({ success: false, message: 'Không thể từ chối yêu cầu rút tiền.' });
     }
+});
+
+// ==========================================
+// GIAO DIỆN QUẢN TRỊ ADMIN (ADMIN DASHBOARD UI)
+// ==========================================
+app.get('/admin-dashboard', (req, res) => {
+    const token = req.query.token;
+    if (token !== process.env.ADMIN_API_TOKEN) {
+        return res.status(403).send('Truy cập bị từ chối! Vui lòng cung cấp token hợp lệ trên URL (?token=MA_TOKEN_CUA_BAN)');
+    }
+
+    res.send(`
+        <!DOCTYPE html>
+        <html lang="vi">
+        <head>
+            <meta charset="UTF-8">
+            <title>Quản Trị Rút Tiền - Nông Sản Việt</title>
+            <style>
+                body { font-family: Arial, sans-serif; background: #f4f6f9; padding: 20px; }
+                h2 { color: #333; }
+                table { width: 100%; border-collapse: collapse; background: #fff; margin-top: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+                th, td { padding: 12px; border: 1px solid #ddd; text-align: left; }
+                th { background-color: #28a745; color: white; }
+                .btn { padding: 6px 12px; border: none; cursor: pointer; color: white; border-radius: 4px; font-weight: bold; }
+                .btn-approve { background-color: #28a745; }
+                .btn-reject { background-color: #dc3545; }
+                .status-pending { color: #ffc107; font-weight: bold; }
+            </style>
+        </head>
+        <body>
+            <h2>Quản Lý Yêu Cầu Rút Tiền (Thông tin ngân hàng đã giải mã)</h2>
+            <div id="loading">Đang tải dữ liệu...</div>
+            <table id="withdrawalTable" style="display:none;">
+                <thead>
+                    <tr>
+                        <th>Mã GD</th>
+                        <th>Người dùng</th>
+                        <th>Số điểm rút</th>
+                        <th>Ngân hàng</th>
+                        <th>Số tài khoản</th>
+                        <th>Chủ tài khoản</th>
+                        <th>Trạng thái</th>
+                        <th>Hành động</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+
+            <script>
+                const token = "${token}";
+                async function loadWithdrawals() {
+                    try {
+                        const res = await fetch('/api/admin/withdrawals', {
+                            headers: { 'Authorization': 'Bearer ' + token }
+                        });
+                        const data = await res.json();
+                        document.getElementById('loading').style.display = 'none';
+                        const tbody = document.getElementById('tableBody');
+                        tbody.innerHTML = '';
+                        
+                        if (!data.withdrawals || data.withdrawals.length === 0) {
+                            tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">Không có yêu cầu rút tiền chờ duyệt nào.</td></tr>';
+                            document.getElementById('withdrawalTable').style.display = 'table';
+                            return;
+                        }
+
+                        data.withdrawals.forEach(w => {
+                            const tr = document.createElement('tr');
+                            tr.innerHTML = \`
+                                <td>\${w.withdrawalId}</td>
+                                <td>\${w.username || w.userId}</td>
+                                <td>\${w.amount} điểm</td>
+                                <td><b>\${w.bankName || 'N/A'}</b></td>
+                                <td><b>\${w.bankAccountNumber || 'N/A'}</b></td>
+                                <td><b>\${w.bankAccountName || 'N/A'}</b></td>
+                                <td><span class="status-pending">pending</span></td>
+                                <td>
+                                    <button class="btn btn-approve" onclick="approve('\${w.withdrawalId}')">Duyệt</button>
+                                    <button class="btn btn-reject" onclick="reject('\${w.withdrawalId}')">Từ chối</button>
+                                </td>
+                            \`;
+                            tbody.appendChild(tr);
+                        });
+                        document.getElementById('withdrawalTable').style.display = 'table';
+                    } catch (err) {
+                        document.getElementById('loading').innerText = 'Lỗi tải dữ liệu: ' + err.message;
+                    }
+                }
+
+                async function approve(id) {
+                    if (!confirm('Bạn có chắc chắn muốn duyệt đơn rút tiền này không?')) return;
+                    const res = await fetch('/api/admin/withdrawals/' + id + '/approve', {
+                        method: 'POST',
+                        headers: { 'Authorization': 'Bearer ' + token }
+                    });
+                    const result = await res.json();
+                    alert(result.message || 'Thành công');
+                    loadWithdrawals();
+                }
+
+                async function reject(id) {
+                    if (!confirm('Bạn có chắc chắn muốn từ chối và hoàn điểm cho khách không?')) return;
+                    const res = await fetch('/api/admin/withdrawals/' + id + '/reject', {
+                        method: 'POST',
+                        headers: { 'Authorization': 'Bearer ' + token }
+                    });
+                    const result = await res.json();
+                    alert(result.message || 'Đã từ chối');
+                    loadWithdrawals();
+                }
+
+                loadWithdrawals();
+            </script>
+        </body>
+        </html>
+    `);
 });
 
 // Khởi động server cục bộ nếu chạy môi trường dev
