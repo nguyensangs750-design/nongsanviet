@@ -8,10 +8,6 @@
     {
       "source": "/admin-dashboard",
       "destination": "/api/server"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/$1"
     }
   ]
 }
